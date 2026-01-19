@@ -19,9 +19,8 @@ jobs:
           version: 10.14.0
 
       - run: |
-          cd docs/site
           pnpm install
-          pnpm docs:build
+          pnpm --filter piemdm-docs run docs:build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
