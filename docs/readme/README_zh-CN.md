@@ -215,7 +215,6 @@ pnpm build
 ## 📞 支持
 
 - 📧 邮箱: [jasen215@gmail.com]
-- 📱 微信号: jasen-cn
 - 🐛 Issues: [GitHub Issues](https://github.com/pieworks/piemdm/issues)
 - 💬 讨论: [GitHub Discussions](https://github.com/pieworks/piemdm/discussions)
 
