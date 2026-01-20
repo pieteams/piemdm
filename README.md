@@ -12,6 +12,8 @@
 
 PieMDM is a powerful and user-friendly open-source Master Data Management (MDM) system designed for enterprise data governance. Built with Go backend and Vue.js frontend, it provides comprehensive data management, governance, and integration capabilities.
 
+**Project Website**: https://pieworks.github.io/piemdm/
+
 ## 🚀 Features
 
 - Data Management & Integration

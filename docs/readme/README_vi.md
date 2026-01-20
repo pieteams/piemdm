@@ -12,6 +12,8 @@
 
 PieMDM là một hệ thống Quản lý Dữ liệu Chủ (MDM) mã nguồn mở mạnh mẽ và thân thiện với người dùng, được thiết kế cho quản trị dữ liệu doanh nghiệp. Được xây dựng với backend Go và frontend Vue.js, nó cung cấp khả năng quản lý, quản trị và tích hợp dữ liệu toàn diện.
 
+**Trang web dự án**: https://pieworks.github.io/piemdm/
+
 ## 🚀 Tính năng
 
 - Quản lý & Tích hợp Dữ liệu
