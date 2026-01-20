@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pieworks.github.io/piemdm/sitemap.xml

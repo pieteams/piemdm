@@ -4,6 +4,9 @@ export default defineConfig({
     title: 'PIE MDM',
     description: 'Master Data Management Platform',
     base: '/piemdm/',
+    sitemap: {
+        hostname: 'https://pieworks.github.io/piemdm/'
+    },
     locales: {
         root: {
             label: 'English',
