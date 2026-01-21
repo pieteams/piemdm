@@ -2,11 +2,20 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     title: 'PIE MDM',
-    description: 'Master Data Management Platform',
+    description: 'Master Data Management(MDM) Platform',
     base: '/piemdm/',
     sitemap: {
         hostname: 'https://pieworks.github.io/piemdm/'
     },
+    head: [
+        ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LBRJN3MR40' }],
+        ['script', {}, `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LBRJN3MR40');
+    `]
+    ],
     locales: {
         root: {
             label: 'English',
