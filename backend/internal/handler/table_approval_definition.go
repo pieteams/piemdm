@@ -133,10 +133,10 @@ func (h *tableApprovalDefinitionHandler) Create(c *gin.Context) {
 // @Router /admin/table_approval_defs/{id} [put]
 func (h *tableApprovalDefinitionHandler) Update(c *gin.Context) {
 	var req struct {
-		ID              uint   `binding:"required"`
-		EntityCode      string `binding:"required,max=64"`
-		Operation       string `binding:"required,max=64"`
-		ApprovalDefCode string `binding:"required,max=64"`
+		ID              uint   `json:"id" binding:"required"`
+		EntityCode      string `json:"entity_code" binding:"required,max=64"`
+		Operation       string `json:"operation" binding:"required,max=64"`
+		ApprovalDefCode string `json:"approval_def_code" binding:"required,max=64"`
 	}
 
 	if err := c.ShouldBind(&req); err != nil {

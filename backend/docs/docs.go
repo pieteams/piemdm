@@ -7767,7 +7767,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "createdBy": {
-                    "description": "这些都是服务端参数，不用校验。",
                     "type": "string"
                 },
                 "deletedAt": {
@@ -7797,7 +7796,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedBy": {
-                    "description": "更新人",
                     "type": "string"
                 }
             }

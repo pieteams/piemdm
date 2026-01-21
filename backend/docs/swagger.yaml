@@ -935,7 +935,6 @@ definitions:
       createdAt:
         type: string
       createdBy:
-        description: 这些都是服务端参数，不用校验。
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
@@ -957,7 +956,6 @@ definitions:
       updatedAt:
         type: string
       updatedBy:
-        description: 更新人
         type: string
     required:
     - code

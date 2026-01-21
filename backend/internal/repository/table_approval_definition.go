@@ -32,10 +32,14 @@ func (r *tableApprovalDefinitionRepository) List(entityCode, operation string) (
 	var tableApprovalDefinitions []model.TableApprovalDefinition
 	var tableApprovalDefinition model.TableApprovalDefinition
 
-	err := r.source.Find(tableApprovalDefinition, &tableApprovalDefinitions, "*", map[string]any{
+	where := map[string]any{
 		"entity_code": entityCode,
-		"operation":   operation,
-	}, "id asc")
+	}
+	if operation != "" {
+		where["operation"] = operation
+	}
+
+	err := r.source.Find(tableApprovalDefinition, &tableApprovalDefinitions, "*", where, "id asc")
 	if err != nil {
 		r.logger.Error("获取模型信息失败", "err", err)
 	}

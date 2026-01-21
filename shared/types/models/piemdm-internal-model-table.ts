@@ -66,7 +66,7 @@ export interface PiemdmInternalModelTable {
      */
     'createdAt'?: string;
     /**
-     * 这些都是服务端参数，不用校验。
+     * 
      * @type {string}
      * @memberof PiemdmInternalModelTable
      */
@@ -114,7 +114,7 @@ export interface PiemdmInternalModelTable {
      */
     'updatedAt'?: string;
     /**
-     * 更新人
+     * 
      * @type {string}
      * @memberof PiemdmInternalModelTable
      */
