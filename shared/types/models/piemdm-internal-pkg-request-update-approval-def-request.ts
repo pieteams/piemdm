@@ -65,7 +65,7 @@ export interface PiemdmInternalPkgRequestUpdateApprovalDefRequest {
 }
 
 export const PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum = {
-    SystemBuilt: 'SystemBuilt',
+    Builtin: 'Builtin',
     Feishu: 'Feishu',
     DingTalk: 'DingTalk',
     WeChatWork: 'WeChatWork',

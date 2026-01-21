@@ -883,7 +883,7 @@ func (suite *ApprovalWorkflowTestSuite) createApprovalDefinition(t *testing.T) s
 		FormData:       `{"fields":[{"name":"reason","type":"text","label":"申请原因","required":true}]}`,
 		NodeList:       `{"nodes":[{"id":"start","type":"start"},{"id":"approve1","type":"approval"},{"id":"end","type":"end"}]}`,
 		Status:         "Normal",
-		ApprovalSystem: "SystemBuilt",
+		ApprovalSystem: "Builtin",
 	}
 
 	body, _ := json.Marshal(reqBody)

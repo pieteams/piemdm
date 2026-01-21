@@ -175,7 +175,7 @@ definitions:
       approvalSystem:
         description: |-
           状态和元数据，
-          SystemBuilt 系统内置，Custom 自定义，Feishu，DingDing，WeChat
+          Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
         type: string
       code:
         description: 审批定义唯一编码
@@ -1302,7 +1302,7 @@ definitions:
     properties:
       approvalSystem:
         enum:
-        - SystemBuilt
+        - Builtin
         - Feishu
         - DingTalk
         - WeChatWork
@@ -1511,7 +1511,7 @@ definitions:
     properties:
       approvalSystem:
         enum:
-        - SystemBuilt
+        - Builtin
         - Feishu
         - DingTalk
         - WeChatWork

@@ -56,8 +56,8 @@ type ApprovalDefinition struct {
 	// VersionComment string `gorm:"size:255"`  // 版本说明
 
 	// 状态和元数据，
-	// SystemBuilt 系统内置，Custom 自定义，Feishu，DingDing，WeChat
-	ApprovalSystem string `gorm:"size:16;default:SystemBuilt"`
+	// Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
+	ApprovalSystem string `gorm:"size:16;default:Builtin"`
 	// 状态:Normal 正常, Frozen 已冻结, Deleted 已删除
 	Status string `gorm:"size:8;default:Normal"`
 	// Priority  int    `gorm:"default:0"`             // 优先级

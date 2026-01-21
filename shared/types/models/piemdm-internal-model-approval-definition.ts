@@ -24,7 +24,7 @@ import { GormDeletedAt } from './gorm-deleted-at';
  */
 export interface PiemdmInternalModelApprovalDefinition {
     /**
-     * 状态和元数据， SystemBuilt 系统内置，Custom 自定义，Feishu，DingDing，WeChat
+     * 状态和元数据， Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
      * @type {string}
      * @memberof PiemdmInternalModelApprovalDefinition
      */

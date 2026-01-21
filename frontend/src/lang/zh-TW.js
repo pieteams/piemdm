@@ -445,7 +445,7 @@ export default {
   "Condition Value": "條件值",
   "Normal": "正常",
   "Frozen": "已凍結",
-  "Internal": "企業自建",
+  "Builtin": "企業自建",
   "Feishu": "飛書",
   "DingTalk": "釘釘",
   "WeChatWork": "企業微信",

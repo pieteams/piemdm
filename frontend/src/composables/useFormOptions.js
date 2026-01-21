@@ -34,7 +34,7 @@ export function useFormOptions() {
   ]);
 
   const approvalSystemOptions = [
-    { label: t('SystemBuilt'), value: 'SystemBuilt' },
+    { label: t('Builtin'), value: 'Builtin' },
     { label: t('Feishu'), value: 'Feishu' },
     { label: t('DingTalk'), value: 'DingTalk' },
     { label: t('WeChatWork'), value: 'WeChatWork' },

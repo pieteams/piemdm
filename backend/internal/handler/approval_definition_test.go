@@ -97,7 +97,7 @@ func TestApprovalDefHandler_CreateApprovalDef(t *testing.T) {
 		Description:    "测试审批定义描述",
 		FormData:       `{"fields":[]}`,
 		NodeList:       `{"nodes":[]}`,
-		ApprovalSystem: "SystemBuilt",
+		ApprovalSystem: "Builtin",
 		Status:         "Normal",
 	}
 
@@ -127,7 +127,7 @@ func TestApprovalDefHandler_UpdateApprovalDef(t *testing.T) {
 		ID:             1,
 		Name:           "测试审批定义-更新",
 		Description:    "测试审批定义描述-更新",
-		ApprovalSystem: "SystemBuilt",
+		ApprovalSystem: "Builtin",
 		FormData:       `{"fields":[]}`,
 		NodeList:       `{"nodes":[]}`,
 		Status:         "Normal",

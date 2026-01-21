@@ -453,7 +453,7 @@ export default {
   "Condition Value": "条件值",
   "Normal": "正常",
   "Frozen": "已冻结",
-  "SystemBuilt": "系统内建",
+  "Builtin": "系统内建",
   "Feishu": "飞书",
   "DingTalk": "钉钉",
   "WeChatWork": "企业微信",

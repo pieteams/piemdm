@@ -441,7 +441,7 @@ export default {
   "Condition Value": "Condition Value",
   "Normal": "Normal",
   "Frozen": "Frozen",
-  "Internal": "Internal",
+  "Builtin": "Builtin",
   "Feishu": "Feishu",
   "DingTalk": "DingTalk",
   "WeChatWork": "WeChatWork",
