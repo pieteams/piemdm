@@ -1,5 +1,6 @@
 {
   "name": "workflow-vue",
+  "version": "1.0.0",
   "type": "module",
   "main": "./src/lib/index.js",
   "module": "./src/lib/index.js",

@@ -10,14 +10,15 @@ WORKDIR /workspace
 # Copy go.work and module files
 COPY go.work go.work.sum* ./
 COPY backend/go.mod backend/go.sum ./backend/
-COPY shared/openapi-go/go.mod shared/openapi-go/go.sum* ./shared/openapi-go/
+COPY packages/go/openapi/go.mod packages/go/openapi/go.work.sum* ./packages/go/openapi/
 
 # Download dependencies
 # Need to be in the respective module directories or use go work sync
-RUN go mod download -C backend && go mod download -C shared/openapi-go
+RUN go mod download -C backend && go mod download -C packages/go/openapi
 
 # Copy source code
 COPY backend ./backend
+COPY packages/go/openapi ./packages/go/openapi
 COPY shared ./shared
 
 # Build the application

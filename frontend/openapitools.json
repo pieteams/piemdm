@@ -6,7 +6,7 @@
         "generators": {
             "piemdm-api": {
                 "generatorName": "typescript-axios",
-                "output": "src/api/generated",
+                "output": "../../packages/web/api-client",
                 "inputSpec": "../shared/api/swagger.json",
                 "additionalProperties": {
                     "supportsES6": true,
