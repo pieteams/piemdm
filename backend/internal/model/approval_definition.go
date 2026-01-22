@@ -79,9 +79,17 @@ type ApprovalDefinition struct {
 
 // BeforeCreate 创建前钩子
 func (m *ApprovalDefinition) BeforeCreate(tx *gorm.DB) (err error) {
-	if m.Code == "" {
+	// Code 处理逻辑
+	// 1. 如果是 Builtin (或默认)，强制自动生成，忽略前端输入，防止恶意传入
+	// 2. 如果是其他平台，Code 必须由用户提供
+	if m.Platform == "" || m.Platform == "Builtin" {
 		uuid := uuid.New()
 		m.Code = strings.ToUpper(uuid.String())
+	} else {
+		// 非内置平台，Code 不能为空
+		if m.Code == "" {
+			return gorm.ErrInvalidValue
+		}
 	}
 
 	if user, ok := tx.Statement.Context.Value("user_name").(string); ok {

@@ -21,6 +21,12 @@
  */
 export interface PiemdmInternalPkgRequestCreateApprovalDefRequest {
     /**
+     * 
+     * @type {string}
+     * @memberof PiemdmInternalPkgRequestCreateApprovalDefRequest
+     */
+    'code'?: string;
+    /**
      * EntityCode  string `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"` Category    string `json:\"category\" binding:\"max=64\" comment:\"审批分类\"`
      * @type {string}
      * @memberof PiemdmInternalPkgRequestCreateApprovalDefRequest

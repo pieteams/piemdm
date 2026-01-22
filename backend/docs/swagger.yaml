@@ -1300,6 +1300,9 @@ definitions:
     type: object
   piemdm_internal_pkg_request.CreateApprovalDefRequest:
     properties:
+      code:
+        maxLength: 128
+        type: string
       description:
         description: |-
           EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`

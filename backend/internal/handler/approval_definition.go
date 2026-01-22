@@ -153,6 +153,7 @@ func (h *approvalDefinitionHandler) Create(c *gin.Context) {
 
 	// 转换为模型
 	approvalDefinition := &model.ApprovalDefinition{
+		Code:        req.Code,
 		Name:        req.Name,
 		Description: req.Description,
 		FormData:    req.FormData,

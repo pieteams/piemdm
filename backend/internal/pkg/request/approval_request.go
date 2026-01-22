@@ -6,6 +6,7 @@ import "time"
 
 // CreateApprovalDefRequest 创建审批定义请求
 type CreateApprovalDefRequest struct {
+	Code string `json:"code" binding:"max=128" comment:"审批编码"`
 	Name string `json:"name" binding:"required,min=1,max=128" comment:"审批名称"`
 	// EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
 	// Category    string `json:"category" binding:"max=64" comment:"审批分类"`

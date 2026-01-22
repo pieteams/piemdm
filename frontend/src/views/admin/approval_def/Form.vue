@@ -16,6 +16,20 @@
             </div>
           </div>
         </div>
+        <div class="col-sm-12" v-if="platform !== 'Builtin'">
+          <div class="form-group row">
+            <legend :class="['col-form-label', 'col-sm-2', { required: requiredFields.code }]">
+              {{ $t('Code') }}:
+            </legend>
+            <div class="col-sm-auto">
+              <input type="text" class="form-control form-control-sm" v-model="code" v-bind="codeAttrs" name="code"
+                :placeholder="$t('Code')" maxlength="128" size="64" />
+              <div v-if="errors.Code" class="text-danger small mt-1">
+                {{ errors.Code }}
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="col-sm-12">
           <div class="form-group row">
             <legend :class="['col-form-label', 'col-sm-2', { required: requiredFields.description }]">
@@ -129,6 +143,13 @@ const validationSchema = yup.object({
   NodeList: yup.string(),
   Platform: yup.string().required(),
   Status: yup.string().required(),
+  Code: yup.string().test('required-if-not-builtin', 'Code is required for external platforms', function (value) {
+    const { Platform } = this.parent;
+    if (Platform !== 'Builtin') {
+      return !!value;
+    }
+    return true;
+  }),
 });
 
 // required字段映射
@@ -149,6 +170,7 @@ const { values, errors, defineField, handleSubmit, setValues } = useForm({
 
 // 字段定义
 const [name, nameAttrs] = defineField('Name');
+const [code, codeAttrs] = defineField('Code');
 const [description, descriptionAttrs] = defineField('Description');
 const [formData, formDataAttrs] = defineField('FormData');
 const [nodeList, nodeListAttrs] = defineField('NodeList');

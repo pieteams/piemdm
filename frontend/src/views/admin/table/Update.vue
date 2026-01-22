@@ -46,9 +46,9 @@
                     :reduce="option => option.Code" label="Code"
                     :placeholder="$t('Please Select') + ' ' + $t('Approval Flow')" :clearable="true" :searchable="true"
                     @search="loadApprovalDefs">
-                    <template #option="{ Code }">{{ Code }}</template>
-                    <template #selected-option="{ Code }">
-                      {{ Code }}
+                    <template #option="{ Code, Name }">{{ Code }} {{ Name }}</template>
+                    <template #selected-option="{ Code, Name }">
+                      {{ Code }} {{ Name }}
                     </template>
                   </v-select>
                 </div>
