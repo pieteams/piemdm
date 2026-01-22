@@ -81,20 +81,6 @@ notification:
       api_key: "your-api-key"
       method: "POST"
 
-  # Feishu Message Configuration
-  feishu:
-    enabled: false
-    app_id: "your-feishu-app-id"
-    app_secret: "your-feishu-app-secret"
-    webhook_url: "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-key"
-
-  # DingTalk Message Configuration
-  dingtalk:
-    enabled: false
-    app_key: "your-dingtalk-app-key"
-    app_secret: "your-dingtalk-app-secret"
-    webhook_url: "https://oapi.dingtalk.com/robot/send?access_token=your-access-token"
-
   # Custom Notification Interface Configuration
   custom:
     enabled: false
@@ -112,3 +98,26 @@ notification:
         headers:
           X-API-Key: "your-api-key"
         timeout: 30s
+
+# Integration Platform Configuration (Identity, Contacts, Approval, Messaging)
+integrations:
+  # Feishu Configuration
+  feishu:
+    enabled: false
+    app_id: "your-feishu-app-id"
+    app_secret: "your-feishu-app-secret"
+    webhook_url: "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-key"
+
+  # DingTalk Configuration
+  dingtalk:
+    enabled: false
+    app_key: "your-dingtalk-app-key"
+    app_secret: "your-dingtalk-app-secret"
+    webhook_url: "https://oapi.dingtalk.com/robot/send?access_token=your-access-token"
+
+# OpenAPI Configuration
+openapi:
+  # Timestamp validation window (minutes), allowed time deviation
+  timestamp_window_minutes: 5
+  # Nonce validity period (minutes), preventing replay attacks
+  nonce_ttl_minutes: 10

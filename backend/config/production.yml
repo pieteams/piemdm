@@ -26,3 +26,21 @@ log:
   max_age: 7
   max_size: 1024
   compress: true
+
+# Integration Platform Configuration (Env Injection)
+integrations:
+  feishu:
+    enabled: false
+    app_id: "" # INTEGRATIONS_FEISHU_APP_ID
+    app_secret: ""
+    webhook_url: ""
+  dingtalk:
+    enabled: false
+    app_key: ""
+    app_secret: ""
+    webhook_url: ""
+
+# OpenAPI Configuration
+openapi:
+  timestamp_window_minutes: 5
+  nonce_ttl_minutes: 10

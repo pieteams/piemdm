@@ -59,7 +59,7 @@ func main() {
 		panic(err)
 	}
 
-	slog.Info("Server Start.", "host", "http://127.0.0.1:"+conf.GetString("http.port"))
+	slog.Info("Server Start.", "host", fmt.Sprintf("0.0.0.0:%d", conf.GetInt("http.port")))
 
 	// servers.
 	http.Run(servers.ServerHTTP, fmt.Sprintf("0.0.0.0:%d", conf.GetInt("http.port")))

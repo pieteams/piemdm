@@ -14,11 +14,16 @@ func NewNotificationServiceFromConfig(config *viper.Viper, logger *slog.Logger) 
 	if err := config.UnmarshalKey("notification", &notificationConfig); err != nil {
 		logger.Warn("failed to parse notification config, using default", "error", err)
 		// 使用默认配置
-		notificationConfig = NotificationConfig{
-			Email: EmailConfig{
-				Enabled: false,
-			},
-		}
+		// ...
+	}
+
+	// 从 integrations 加载飞书和钉钉配置到 notificationConfig 中
+	// 这样保持内部代码结构不变，但配置来源改变了
+	if err := config.UnmarshalKey("integrations.feishu", &notificationConfig.Feishu); err != nil {
+		logger.Warn("failed to parse feishu integration config", "error", err)
+	}
+	if err := config.UnmarshalKey("integrations.dingtalk", &notificationConfig.Dingtalk); err != nil {
+		logger.Warn("failed to parse dingtalk integration config", "error", err)
 	}
 
 	// 修复配置解析问题：手动设置可能解析失败的字段
