@@ -172,11 +172,6 @@ definitions:
     type: object
   piemdm_internal_model.ApprovalDefinition:
     properties:
-      approvalSystem:
-        description: |-
-          状态和元数据，
-          Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
-        type: string
       code:
         description: 审批定义唯一编码
         type: string
@@ -211,6 +206,11 @@ definitions:
           流程配置
           ProcessConfig string `gorm:"type:text"` // 流程配置JSON
           ProcessNodes  string `gorm:"type:text"` // 流程节点配置
+        type: string
+      platform:
+        description: |-
+          状态和元数据，
+          Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
         type: string
       status:
         description: 状态:Normal 正常, Frozen 已冻结, Deleted 已删除
@@ -1300,14 +1300,6 @@ definitions:
     type: object
   piemdm_internal_pkg_request.CreateApprovalDefRequest:
     properties:
-      approvalSystem:
-        enum:
-        - Builtin
-        - Feishu
-        - DingTalk
-        - WeChatWork
-        - Custom
-        type: string
       description:
         description: |-
           EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
@@ -1324,6 +1316,14 @@ definitions:
       nodeList:
         maxLength: 10000
         type: string
+      platform:
+        enum:
+        - Builtin
+        - Feishu
+        - DingTalk
+        - WeChatWork
+        - Custom
+        type: string
       status:
         enum:
         - Normal
@@ -1331,8 +1331,8 @@ definitions:
         - Deleted
         type: string
     required:
-    - approvalSystem
     - name
+    - platform
     type: object
   piemdm_internal_pkg_request.CreateApprovalNodeRequest:
     properties:
@@ -1509,14 +1509,6 @@ definitions:
     type: object
   piemdm_internal_pkg_request.UpdateApprovalDefRequest:
     properties:
-      approvalSystem:
-        enum:
-        - Builtin
-        - Feishu
-        - DingTalk
-        - WeChatWork
-        - Custom
-        type: string
       description:
         description: |-
           EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
@@ -1535,6 +1527,14 @@ definitions:
       nodeList:
         maxLength: 10000
         type: string
+      platform:
+        enum:
+        - Builtin
+        - Feishu
+        - DingTalk
+        - WeChatWork
+        - Custom
+        type: string
       status:
         enum:
         - Normal
@@ -1542,9 +1542,9 @@ definitions:
         - Deleted
         type: string
     required:
-    - approvalSystem
     - id
     - name
+    - platform
     type: object
   piemdm_internal_pkg_request.UpdateApprovalNodeRequest:
     properties:

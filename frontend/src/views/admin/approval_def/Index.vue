@@ -48,7 +48,7 @@
             <th>{{ $t('Description') }}</th>
             <th>{{ $t('FormData') }}</th>
             <th>{{ $t('NodeList') }}</th>
-            <th>{{ $t('ApprovalSystem') }}</th>
+            <th>{{ $t('Platform') }}</th>
             <th>{{ $t('Status') }}</th>
             <th>{{ $t('UpdatedAt') }}</th>
             <th>{{ $t('CreatedAt') }}</th>
@@ -72,7 +72,7 @@
             <td>{{ item.Description }}</td>
             <td>{{ item.FormData }}</td>
             <td>{{ item.NodeList }}</td>
-            <td>{{ item.ApprovalSystem }}</td>
+            <td>{{ item.Platform }}</td>
             <td>
               <StatusBadge :status="item.Status" />
             </td>

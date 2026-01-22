@@ -9,10 +9,10 @@ type CreateApprovalDefRequest struct {
 	Name string `json:"name" binding:"required,min=1,max=128" comment:"审批名称"`
 	// EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
 	// Category    string `json:"category" binding:"max=64" comment:"审批分类"`
-	Description    string `json:"description" binding:"max=500" comment:"审批描述"`
-	FormData       string `json:"formData" binding:"max=10000" comment:"表单配置"`
-	NodeList       string `json:"nodeList" binding:"max=10000" comment:"流程节点列表"`
-	ApprovalSystem string `json:"approvalSystem" binding:"required,oneof=Builtin Feishu DingTalk WeChatWork Custom" comment:"审批系统"`
+	Description string `json:"description" binding:"max=500" comment:"审批描述"`
+	FormData    string `json:"formData" binding:"max=10000" comment:"表单配置"`
+	NodeList    string `json:"nodeList" binding:"max=10000" comment:"流程节点列表"`
+	Platform    string `json:"platform" binding:"required,oneof=Builtin Feishu DingTalk WeChatWork Custom" comment:"审批系统"`
 
 	// 流程配置
 	// ApprovalMode string `json:"approvalMode" binding:"required,oneof=OR AND SEQUENTIAL" comment:"审批模式"`
@@ -40,9 +40,9 @@ type CreateApprovalDefRequest struct {
 
 // UpdateApprovalDefRequest 更新审批定义请求
 type UpdateApprovalDefRequest struct {
-	ID             uint   `json:"id" binding:"required,gt=0" comment:"审批定义ID"`
-	Name           string `json:"name" binding:"required,min=1,max=128" comment:"审批名称"`
-	ApprovalSystem string `json:"approvalSystem" binding:"required,oneof=Builtin Feishu DingTalk WeChatWork Custom" comment:"审批系统"`
+	ID       uint   `json:"id" binding:"required,gt=0" comment:"审批定义ID"`
+	Name     string `json:"name" binding:"required,min=1,max=128" comment:"审批名称"`
+	Platform string `json:"platform" binding:"required,oneof=Builtin Feishu DingTalk WeChatWork Custom" comment:"审批系统"`
 	// EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
 	// Category    string `json:"category" binding:"max=64" comment:"审批分类"`
 	Description string `json:"description" binding:"max=500" comment:"审批描述"`

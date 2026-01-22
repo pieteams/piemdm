@@ -153,12 +153,12 @@ func (h *approvalDefinitionHandler) Create(c *gin.Context) {
 
 	// 转换为模型
 	approvalDefinition := &model.ApprovalDefinition{
-		Name:           req.Name,
-		Description:    req.Description,
-		FormData:       req.FormData,
-		NodeList:       req.NodeList,
-		ApprovalSystem: req.ApprovalSystem,
-		Status:         req.Status,
+		Name:        req.Name,
+		Description: req.Description,
+		FormData:    req.FormData,
+		NodeList:    req.NodeList,
+		Platform:    req.Platform,
+		Status:      req.Status,
 	}
 
 	err := h.approvalDefinitionService.Create(c, approvalDefinition)
@@ -199,7 +199,7 @@ func (h *approvalDefinitionHandler) Update(c *gin.Context) {
 	existingDef.Description = req.Description
 	existingDef.FormData = req.FormData
 	existingDef.NodeList = req.NodeList
-	existingDef.ApprovalSystem = req.ApprovalSystem
+	existingDef.Platform = req.Platform
 	existingDef.Status = req.Status
 
 	// 系统字段由系统管理，不允许用户修改

@@ -459,7 +459,7 @@ export default {
   "WeChatWork": "企业微信",
   "Custom": "自定义",
   "NodeList": "节点列表",
-  "ApprovalSystem": "审批系统",
+  "Platform": "审批系统",
   "Processing": "处理中",
   "Canceled": "已取消",
   "Expired": "已过期",

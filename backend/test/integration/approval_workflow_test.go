@@ -878,12 +878,12 @@ func (suite *ApprovalWorkflowTestSuite) TestTaskTransferWorkflow() {
 // 辅助方法：创建审批定义
 func (suite *ApprovalWorkflowTestSuite) createApprovalDefinition(t *testing.T) string {
 	reqBody := request.CreateApprovalDefRequest{
-		Name:           "测试审批流程",
-		Description:    "这是一个测试审批流程",
-		FormData:       `{"fields":[{"name":"reason","type":"text","label":"申请原因","required":true}]}`,
-		NodeList:       `{"nodes":[{"id":"start","type":"start"},{"id":"approve1","type":"approval"},{"id":"end","type":"end"}]}`,
-		Status:         "Normal",
-		ApprovalSystem: "Builtin",
+		Name:        "测试审批流程",
+		Description: "这是一个测试审批流程",
+		FormData:    `{"fields":[{"name":"reason","type":"text","label":"申请原因","required":true}]}`,
+		NodeList:    `{"nodes":[{"id":"start","type":"start"},{"id":"approve1","type":"approval"},{"id":"end","type":"end"}]}`,
+		Status:      "Normal",
+		Platform:    "Builtin",
 	}
 
 	body, _ := json.Marshal(reqBody)

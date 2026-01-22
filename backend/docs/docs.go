@@ -6735,10 +6735,6 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "approvalSystem": {
-                    "description": "状态和元数据，\nBuiltin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork",
-                    "type": "string"
-                },
                 "code": {
                     "description": "审批定义唯一编码",
                     "type": "string"
@@ -6778,6 +6774,10 @@ const docTemplate = `{
                 },
                 "nodeList": {
                     "description": "流程配置\nProcessConfig string ` + "`" + `gorm:\"type:text\"` + "`" + ` // 流程配置JSON\nProcessNodes  string ` + "`" + `gorm:\"type:text\"` + "`" + ` // 流程节点配置",
+                    "type": "string"
+                },
+                "platform": {
+                    "description": "状态和元数据，\nBuiltin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork",
                     "type": "string"
                 },
                 "status": {
@@ -8230,20 +8230,10 @@ const docTemplate = `{
         "piemdm_internal_pkg_request.CreateApprovalDefRequest": {
             "type": "object",
             "required": [
-                "approvalSystem",
-                "name"
+                "name",
+                "platform"
             ],
             "properties": {
-                "approvalSystem": {
-                    "type": "string",
-                    "enum": [
-                        "Builtin",
-                        "Feishu",
-                        "DingTalk",
-                        "WeChatWork",
-                        "Custom"
-                    ]
-                },
                 "description": {
                     "description": "EntityCode  string ` + "`" + `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"` + "`" + `\nCategory    string ` + "`" + `json:\"category\" binding:\"max=64\" comment:\"审批分类\"` + "`" + `",
                     "type": "string",
@@ -8261,6 +8251,16 @@ const docTemplate = `{
                 "nodeList": {
                     "type": "string",
                     "maxLength": 10000
+                },
+                "platform": {
+                    "type": "string",
+                    "enum": [
+                        "Builtin",
+                        "Feishu",
+                        "DingTalk",
+                        "WeChatWork",
+                        "Custom"
+                    ]
                 },
                 "status": {
                     "type": "string",
@@ -8491,21 +8491,11 @@ const docTemplate = `{
         "piemdm_internal_pkg_request.UpdateApprovalDefRequest": {
             "type": "object",
             "required": [
-                "approvalSystem",
                 "id",
-                "name"
+                "name",
+                "platform"
             ],
             "properties": {
-                "approvalSystem": {
-                    "type": "string",
-                    "enum": [
-                        "Builtin",
-                        "Feishu",
-                        "DingTalk",
-                        "WeChatWork",
-                        "Custom"
-                    ]
-                },
                 "description": {
                     "description": "EntityCode  string ` + "`" + `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"` + "`" + `\nCategory    string ` + "`" + `json:\"category\" binding:\"max=64\" comment:\"审批分类\"` + "`" + `",
                     "type": "string",
@@ -8526,6 +8516,16 @@ const docTemplate = `{
                 "nodeList": {
                     "type": "string",
                     "maxLength": 10000
+                },
+                "platform": {
+                    "type": "string",
+                    "enum": [
+                        "Builtin",
+                        "Feishu",
+                        "DingTalk",
+                        "WeChatWork",
+                        "Custom"
+                    ]
                 },
                 "status": {
                     "type": "string",

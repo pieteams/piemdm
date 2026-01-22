@@ -24,12 +24,6 @@ import { GormDeletedAt } from './gorm-deleted-at';
  */
 export interface PiemdmInternalModelApprovalDefinition {
     /**
-     * 状态和元数据， Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
-     * @type {string}
-     * @memberof PiemdmInternalModelApprovalDefinition
-     */
-    'approvalSystem'?: string;
-    /**
      * 审批定义唯一编码
      * @type {string}
      * @memberof PiemdmInternalModelApprovalDefinition
@@ -83,6 +77,12 @@ export interface PiemdmInternalModelApprovalDefinition {
      * @memberof PiemdmInternalModelApprovalDefinition
      */
     'nodeList'?: string;
+    /**
+     * 状态和元数据， Builtin 系统内置,Custom 自定义,Feishu, DingTalk, WeChatWork
+     * @type {string}
+     * @memberof PiemdmInternalModelApprovalDefinition
+     */
+    'platform'?: string;
     /**
      * 状态:Normal 正常, Frozen 已冻结, Deleted 已删除
      * @type {string}

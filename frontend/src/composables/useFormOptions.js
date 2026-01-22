@@ -33,7 +33,7 @@ export function useFormOptions() {
     { label: t('DELETE'), value: 'DELETE' },
   ]);
 
-  const approvalSystemOptions = [
+  const platformOptions = [
     { label: t('Builtin'), value: 'Builtin' },
     { label: t('Feishu'), value: 'Feishu' },
     { label: t('DingTalk'), value: 'DingTalk' },
@@ -152,7 +152,7 @@ export function useFormOptions() {
     dataScopeOptions,
     protocolOptions,
     methodOptions,
-    approvalSystemOptions,
+    platformOptions,
     tableContentOptions,
     tableRelationOptions,
     fieldTypeOptions,

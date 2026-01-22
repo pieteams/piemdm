@@ -9,26 +9,23 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy package definitions
 COPY frontend/package.json ./frontend/
-COPY shared/types/package.json ./shared/types/
-COPY packages/workflow-vue/package.json ./packages/workflow-vue/
-
-# Remove prepare script to prevent premature build during install
-RUN node -e "const fs=require('fs'); const path='./shared/types/package.json'; const pkg=JSON.parse(fs.readFileSync(path)); delete pkg.scripts.prepare; fs.writeFileSync(path, JSON.stringify(pkg, null, 2));"
+COPY packages/web/api-client/package.json ./packages/web/api-client/
+COPY packages/web/workflow-vue/package.json ./packages/web/workflow-vue/
 
 # Install dependencies (frozen-lockfile compatible)
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 # Copy source code
 COPY frontend/ ./frontend/
-COPY shared/types/ ./shared/types/
-COPY packages/workflow-vue/ ./packages/workflow-vue/
+COPY packages/web/api-client/ ./packages/web/api-client/
+COPY packages/web/workflow-vue/ ./packages/web/workflow-vue/
 
-# Build shared types first
-WORKDIR /app/shared/types
+# Build api-client first
+WORKDIR /app/packages/web/api-client
 RUN pnpm build
 
 # Build workflow-vue
-WORKDIR /app/packages/workflow-vue
+WORKDIR /app/packages/web/workflow-vue
 RUN pnpm build
 
 # Build frontend

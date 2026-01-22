@@ -1,5 +1,4 @@
 packages:
   - 'packages/web/*'
   - 'frontend'
-  - 'shared/types'
   - 'docs/site'

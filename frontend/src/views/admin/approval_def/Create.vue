@@ -30,7 +30,7 @@ import AppForm from './Form.vue';
 
 const router = useRouter();
 const dataInfo = ref({
-  ApprovalSystem: 'Builtin',
+  Platform: 'Builtin',
   Status: 'Normal',
 });
 

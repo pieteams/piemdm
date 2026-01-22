@@ -93,12 +93,12 @@ func TestApprovalDefHandler_CreateApprovalDef(t *testing.T) {
 	defer ctrl.Finish()
 
 	params := request.CreateApprovalDefRequest{
-		Name:           "测试审批定义",
-		Description:    "测试审批定义描述",
-		FormData:       `{"fields":[]}`,
-		NodeList:       `{"nodes":[]}`,
-		ApprovalSystem: "Builtin",
-		Status:         "Normal",
+		Name:        "测试审批定义",
+		Description: "测试审批定义描述",
+		FormData:    `{"fields":[]}`,
+		NodeList:    `{"nodes":[]}`,
+		Platform:    "Builtin",
+		Status:      "Normal",
 	}
 
 	mockApprovalDefService := mock_service.NewMockApprovalDefinitionService(ctrl)
@@ -124,13 +124,13 @@ func TestApprovalDefHandler_UpdateApprovalDef(t *testing.T) {
 	defer ctrl.Finish()
 
 	params := request.UpdateApprovalDefRequest{
-		ID:             1,
-		Name:           "测试审批定义-更新",
-		Description:    "测试审批定义描述-更新",
-		ApprovalSystem: "Builtin",
-		FormData:       `{"fields":[]}`,
-		NodeList:       `{"nodes":[]}`,
-		Status:         "Normal",
+		ID:          1,
+		Name:        "测试审批定义-更新",
+		Description: "测试审批定义描述-更新",
+		Platform:    "Builtin",
+		FormData:    `{"fields":[]}`,
+		NodeList:    `{"nodes":[]}`,
+		Status:      "Normal",
 	}
 
 	mockApprovalDefService := mock_service.NewMockApprovalDefinitionService(ctrl)

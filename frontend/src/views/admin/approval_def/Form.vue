@@ -60,15 +60,15 @@
         </div>
         <div class="col-sm-12">
           <div class="form-group row">
-            <legend :class="['col-form-label', 'col-sm-2', { required: requiredFields.approvalSystem }]">
-              {{ $t('ApprovalSystem') }}:
+            <legend :class="['col-form-label', 'col-sm-2', { required: requiredFields.platform }]">
+              {{ $t('Platform') }}:
             </legend>
             <div class="col-sm-3">
-              <VSelect v-model="approvalSystem" v-bind="approvalSystemAttrs" name="approvalSystem"
-                :reduce="option => option.value" :placeholder="$t('Please Select')" :options="approvalSystemOptions">
+              <VSelect v-model="platform" v-bind="platformAttrs" name="platform"
+                :reduce="option => option.value" :placeholder="$t('Please Select')" :options="platformOptions">
               </VSelect>
-              <div v-if="errors.ApprovalSystem" class="text-danger small mt-1">
-                {{ errors.ApprovalSystem }}
+              <div v-if="errors.Platform" class="text-danger small mt-1">
+                {{ errors.Platform }}
               </div>
             </div>
           </div>
@@ -111,7 +111,7 @@ import VSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import * as yup from 'yup';
 
-const { statusOptions, approvalSystemOptions } = useFormOptions();
+const { statusOptions, platformOptions } = useFormOptions();
 
 // Define props to receive dataInfo from parent component
 const props = defineProps({
@@ -127,7 +127,7 @@ const validationSchema = yup.object({
   Description: yup.string(),
   FormData: yup.string(),
   NodeList: yup.string(),
-  ApprovalSystem: yup.string().required(),
+  Platform: yup.string().required(),
   Status: yup.string().required(),
 });
 
@@ -152,7 +152,7 @@ const [name, nameAttrs] = defineField('Name');
 const [description, descriptionAttrs] = defineField('Description');
 const [formData, formDataAttrs] = defineField('FormData');
 const [nodeList, nodeListAttrs] = defineField('NodeList');
-const [approvalSystem, approvalSystemAttrs] = defineField('ApprovalSystem');
+const [platform, platformAttrs] = defineField('Platform');
 const [status, statusAttrs] = defineField('Status');
 
 const emit = defineEmits(['submitForm', 'goIndex']);

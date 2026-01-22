@@ -451,7 +451,7 @@ export default {
   "WeChatWork": "企業微信",
   "Custom": "自定義",
   "NodeList": "節點列表",
-  "ApprovalSystem": "審批系統",
+  "Platform": "審批系統",
   "Processing": "處理中",
   "Canceled": "已取消",
   "Expired": "已過期",

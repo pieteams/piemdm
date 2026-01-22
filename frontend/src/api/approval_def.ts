@@ -27,7 +27,7 @@ export interface ApprovalDefinition {
   FormData?: string;
   NodeList?: string;
   Description?: string;
-  ApprovalSystem?: string;
+  Platform?: string;
   Status?: 'Normal' | 'Frozen' | 'Deleted';
   CreatedBy?: string;
   UpdatedBy?: string;
@@ -42,7 +42,7 @@ export interface CreateApprovalDefRequest {
   FormData?: string;
   NodeList?: string;
   Description?: string;
-  ApprovalSystem?: string;
+  Platform?: string;
   Status?: 'Normal' | 'Frozen' | 'Deleted';
 }
 
@@ -56,7 +56,7 @@ export interface UpdateApprovalDefRequest {
   FormData?: string;
   NodeList?: string;
   Description?: string;
-  ApprovalSystem?: string;
+  Platform?: string;
   Status?: 'Normal' | 'Frozen' | 'Deleted';
 }
 

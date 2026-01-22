@@ -21,12 +21,6 @@
  */
 export interface PiemdmInternalPkgRequestUpdateApprovalDefRequest {
     /**
-     * 
-     * @type {string}
-     * @memberof PiemdmInternalPkgRequestUpdateApprovalDefRequest
-     */
-    'approvalSystem': PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum;
-    /**
      * EntityCode  string `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"` Category    string `json:\"category\" binding:\"max=64\" comment:\"审批分类\"`
      * @type {string}
      * @memberof PiemdmInternalPkgRequestUpdateApprovalDefRequest
@@ -61,10 +55,16 @@ export interface PiemdmInternalPkgRequestUpdateApprovalDefRequest {
      * @type {string}
      * @memberof PiemdmInternalPkgRequestUpdateApprovalDefRequest
      */
+    'platform': PiemdmInternalPkgRequestUpdateApprovalDefRequestPlatformEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PiemdmInternalPkgRequestUpdateApprovalDefRequest
+     */
     'status'?: PiemdmInternalPkgRequestUpdateApprovalDefRequestStatusEnum;
 }
 
-export const PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum = {
+export const PiemdmInternalPkgRequestUpdateApprovalDefRequestPlatformEnum = {
     Builtin: 'Builtin',
     Feishu: 'Feishu',
     DingTalk: 'DingTalk',
@@ -72,7 +72,7 @@ export const PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum 
     Custom: 'Custom'
 } as const;
 
-export type PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum = typeof PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum[keyof typeof PiemdmInternalPkgRequestUpdateApprovalDefRequestApprovalSystemEnum];
+export type PiemdmInternalPkgRequestUpdateApprovalDefRequestPlatformEnum = typeof PiemdmInternalPkgRequestUpdateApprovalDefRequestPlatformEnum[keyof typeof PiemdmInternalPkgRequestUpdateApprovalDefRequestPlatformEnum];
 export const PiemdmInternalPkgRequestUpdateApprovalDefRequestStatusEnum = {
     Normal: 'Normal',
     Frozen: 'Frozen',

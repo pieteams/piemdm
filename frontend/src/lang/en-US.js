@@ -447,7 +447,7 @@ export default {
   "WeChatWork": "WeChatWork",
   "Custom": "Custom",
   "NodeList": "Node List",
-  "ApprovalSystem": "Approval System",
+  "Platform": "Platform",
   "Processing": "Processing",
   "Canceled": "Canceled",
   "Expired": "Expired",

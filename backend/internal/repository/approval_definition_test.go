@@ -67,7 +67,7 @@ func TestApprovalDefRepository_Create(t *testing.T) {
 			sqlmock.AnyArg(), // Description
 			sqlmock.AnyArg(), // FormData
 			sqlmock.AnyArg(), // NodeList
-			sqlmock.AnyArg(), // ApprovalSystem
+			sqlmock.AnyArg(), // Platform
 			sqlmock.AnyArg(), // Status
 			sqlmock.AnyArg(), // CreatedBy
 			sqlmock.AnyArg(), // UpdatedBy
