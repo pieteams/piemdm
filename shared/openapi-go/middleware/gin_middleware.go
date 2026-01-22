@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -128,10 +129,16 @@ func SignatureMiddleware(cfg Config) gin.HandlerFunc {
 // isTimestampValid 验证时间戳
 // 这里简单解析 int64
 func isTimestampValid(tsStr string, window time.Duration) bool {
-	// 需要引入 time 解析逻辑，简单起见假设是 Unix Second
-	// 实际项目建议在 spec/utils 里统一处理时间解析，这里复用
-	// 由于 spec 包主要存常量，我们在 auth 或 util 包里放解析逻辑可能更好
-	// 暂时在这里简单实现，或稍后迁移到 auth 包
-	// 为了演示完整性，暂时 TODO: 应该使用 auth/utils 来统一解析
-	return true // 占位，需补充实现
+	ts, err := strconv.ParseInt(tsStr, 10, 64)
+	if err != nil {
+		return false
+	}
+
+	now := time.Now().Unix()
+	diff := now - ts
+	if diff < 0 {
+		diff = -diff
+	}
+
+	return diff <= int64(window.Seconds())
 }

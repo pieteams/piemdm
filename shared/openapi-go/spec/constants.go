@@ -11,7 +11,7 @@ const (
 	HeaderschemaVer = "X-Schema-Version"
 )
 
-// Deafult Config
+// Default Config
 const (
 	DefaultTimestampWindow = 5 * time.Minute
 	DefaultNonceTTL        = 10 * time.Minute
