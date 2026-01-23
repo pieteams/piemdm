@@ -9,12 +9,12 @@ package main
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"piemdm/internal/handler"
 	"piemdm/internal/auth/casbin"
-	"piemdm/internal/transaction"
+	"piemdm/internal/handler"
 	"piemdm/internal/repository"
-	"piemdm/internal/server"
+	"piemdm/internal/router"
 	"piemdm/internal/service"
+	"piemdm/internal/transaction"
 	"piemdm/pkg/cron"
 	"piemdm/pkg/cron/job"
 	"piemdm/pkg/helper/sid"
@@ -27,7 +27,7 @@ import (
 
 // Injectors from wire.go:
 
-func newApp(viperViper *viper.Viper, logger *log.Logger) (*server.Server, func(), error) {
+func newApp(viperViper *viper.Viper, logger *log.Logger) (*router.Server, func(), error) {
 	jwtJWT := jwt.NewJwt(viperViper)
 	handlerHandler := handler.NewHandler(logger)
 	sidSid := sid.NewSid()
@@ -112,9 +112,9 @@ func newApp(viperViper *viper.Viper, logger *log.Logger) (*server.Server, func()
 	openApiHandler := handler.NewOpenApiHandler(logger, entityService, entityRepository)
 	applicationEntityRepository := repository.NewApplicationEntityRepository(repositoryRepository, base)
 	applicationApiLogRepository := repository.NewApplicationApiLogRepository(repositoryRepository, base)
-	engine := server.NewServerHTTP(logger, jwtJWT, entityHandler, approvalHandler, approvalDefinitionHandler, approvalNodeHandler, approvalTaskHandler, tableHandler, tableFieldHandler, applicationHandler, webhookHandler, webhookDeliveryHandler, cronHandler, cronLogHandler, roleHandler, permissionHandler, userHandler, notificationHandler, notificationTemplateHandler, notificationLogHandler, tableApprovalDefinitionHandler, uploadHandler, tablePermissionHandler, openApiHandler, applicationRepository, applicationEntityRepository, applicationApiLogRepository, client, viperViper, enforcer)
-	serverServer := server.NewServer(engine, notificationHandler)
-	return serverServer, func() {
+	engine := router.NewServerHTTP(logger, jwtJWT, entityHandler, approvalHandler, approvalDefinitionHandler, approvalNodeHandler, approvalTaskHandler, tableHandler, tableFieldHandler, applicationHandler, webhookHandler, webhookDeliveryHandler, cronHandler, cronLogHandler, roleHandler, permissionHandler, userHandler, notificationHandler, notificationTemplateHandler, notificationLogHandler, tableApprovalDefinitionHandler, uploadHandler, tablePermissionHandler, openApiHandler, applicationRepository, applicationEntityRepository, applicationApiLogRepository, client, viperViper, enforcer)
+	server := router.NewServer(engine, notificationHandler)
+	return server, func() {
 	}, nil
 }
 
@@ -173,6 +173,7 @@ func newWebhookApp(viperViper *viper.Viper, logger *log.Logger) (*webhook.Webhoo
 	base := repository.NewBaseRepository(repositoryRepository)
 	webhookRepository := repository.NewWebhookRepository(repositoryRepository, base)
 	webhookService := service.NewWebhookService(serviceService, webhookRepository)
+	taskWebhookService := provideTaskWebhookService(webhookService)
 	tableFieldRepository := repository.NewTableFieldRepository(repositoryRepository, base)
 	entityRepository := repository.NewEntityRepository(repositoryRepository, base, tableFieldRepository)
 	tableRepository := repository.NewTableRepository(repositoryRepository, base)
@@ -197,9 +198,11 @@ func newWebhookApp(viperViper *viper.Viper, logger *log.Logger) (*webhook.Webhoo
 	userRoleRepository := repository.NewUserRoleRepository(db)
 	tablePermissionService := service.NewTablePermissionService(tablePermissionRepository, tableRepository, userRoleRepository)
 	entityService := service.NewEntityService(serviceService, entityRepository, tableFieldService, tableFieldRepository, tableApprovalDefinitionRepository, approvalService, globalIdService, entityLogService, autocodeService, tablePermissionService, tableRepository, viperViper)
+	taskEntityService := provideTaskEntityService(entityService)
 	webhookDeliveryRepository := repository.NewWebhookDeliveryRepository(repositoryRepository, base)
 	webhookDeliveryService := service.NewWebhookDeliveryService(serviceService, webhookDeliveryRepository)
-	scanner := task.NewScanner(client, webhookService, entityService, webhookDeliveryService)
+	taskWebhookDeliveryService := provideTaskWebhookDeliveryService(webhookDeliveryService)
+	scanner := task.NewScanner(client, taskWebhookService, taskEntityService, taskWebhookDeliveryService)
 	webhookWebhook := webhook.NewWebhook(scanner)
 	return webhookWebhook, func() {
 	}, nil
@@ -217,8 +220,24 @@ var CasbinSet = wire.NewSet(casbin.InitEnforcer)
 
 var CronSet = wire.NewSet(job.NewScanner, cron.NewCron)
 
-var WebhookSet = wire.NewSet(task.NewScanner, webhook.NewWebhook)
+var WebhookSet = wire.NewSet(task.NewScanner, webhook.NewWebhook, provideTaskEntityService,
+	provideTaskWebhookService,
+	provideTaskWebhookDeliveryService,
+)
 
 var TransactionSet = wire.NewSet(transaction.NewTransactionManager)
 
 var NotificationSet = wire.NewSet(notification.NewNotificationServiceProvider)
+
+// Adapters for pkg/webhook/task
+func provideTaskEntityService(s service.EntityService) task.EntityService {
+	return s
+}
+
+func provideTaskWebhookService(s service.WebhookService) task.WebhookService {
+	return s
+}
+
+func provideTaskWebhookDeliveryService(s service.WebhookDeliveryService) task.WebhookDeliveryService {
+	return s
+}

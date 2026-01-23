@@ -1,7 +1,7 @@
 // Package server provides HTTP server configuration and routing for the PieMDM API.
 // It contains the main server setup, route definitions, middleware configuration,
 // and HTTP request handling infrastructure using Gin framework.
-package server
+package router
 
 import (
 	"net/http"

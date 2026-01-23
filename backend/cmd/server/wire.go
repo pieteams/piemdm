@@ -4,12 +4,12 @@
 package main
 
 import (
-	"piemdm/internal/handler"
 	"piemdm/internal/auth/casbin" // Import casbin package
-	"piemdm/internal/transaction"
+	"piemdm/internal/handler"
 	"piemdm/internal/repository"
-	"piemdm/internal/server"
+	"piemdm/internal/router"
 	"piemdm/internal/service"
+	"piemdm/internal/transaction"
 	"piemdm/pkg/cron"
 	"piemdm/pkg/cron/job"
 	"piemdm/pkg/helper/sid"
@@ -133,6 +133,9 @@ var CronSet = wire.NewSet(
 var WebhookSet = wire.NewSet(
 	task.NewScanner,
 	webhook.NewWebhook,
+	provideTaskEntityService,
+	provideTaskWebhookService,
+	provideTaskWebhookDeliveryService,
 )
 
 var TransactionSet = wire.NewSet(
@@ -143,7 +146,20 @@ var NotificationSet = wire.NewSet(
 	notification.NewNotificationServiceProvider,
 )
 
-func newApp(*viper.Viper, *log.Logger) (*server.Server, func(), error) {
+// Adapters for pkg/webhook/task
+func provideTaskEntityService(s service.EntityService) task.EntityService {
+	return s
+}
+
+func provideTaskWebhookService(s service.WebhookService) task.WebhookService {
+	return s
+}
+
+func provideTaskWebhookDeliveryService(s service.WebhookDeliveryService) task.WebhookDeliveryService {
+	return s
+}
+
+func newApp(*viper.Viper, *log.Logger) (*router.Server, func(), error) {
 	panic(wire.Build(
 		RepositorySet,
 		ServiceSet,
@@ -151,8 +167,8 @@ func newApp(*viper.Viper, *log.Logger) (*server.Server, func(), error) {
 		TransactionSet,
 		NotificationSet,
 		CasbinSet,
-		server.NewServer,
-		server.NewServerHTTP,
+		router.NewServer,
+		router.NewServerHTTP,
 		sid.NewSid,
 		jwt.NewJwt,
 	))
