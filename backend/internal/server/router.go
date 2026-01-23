@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"piemdm/internal/handler"
-	"piemdm/internal/pkg/middleware"
+	"piemdm/internal/middleware"
 	"piemdm/internal/repository"
 	"piemdm/pkg/jwt"
 	"piemdm/pkg/log"

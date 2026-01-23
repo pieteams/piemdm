@@ -11,7 +11,7 @@ import (
 
 	"piemdm/internal/handler"
 	"piemdm/internal/model"
-	"piemdm/internal/pkg/request"
+	"piemdm/internal/transport/request"
 	"piemdm/pkg/log"
 	mock_service "piemdm/test/mocks/service"
 

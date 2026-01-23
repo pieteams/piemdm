@@ -1,7 +1,7 @@
 package server
 
 import (
-	"piemdm/internal/pkg/middleware"
+	"piemdm/internal/middleware"
 	"piemdm/internal/service"
 
 	"github.com/gin-gonic/gin"

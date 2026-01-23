@@ -5,8 +5,8 @@ package main
 
 import (
 	"piemdm/internal/handler"
-	"piemdm/internal/pkg/casbin" // Import casbin package
-	"piemdm/internal/pkg/transaction"
+	"piemdm/internal/auth/casbin" // Import casbin package
+	"piemdm/internal/transaction"
 	"piemdm/internal/repository"
 	"piemdm/internal/server"
 	"piemdm/internal/service"

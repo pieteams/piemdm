@@ -6,7 +6,7 @@ package mock_service
 
 import (
 	model "piemdm/internal/model"
-	request "piemdm/internal/pkg/request"
+	request "piemdm/internal/transport/request"
 	reflect "reflect"
 
 	gin "github.com/gin-gonic/gin"

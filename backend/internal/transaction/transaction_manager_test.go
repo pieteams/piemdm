@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"piemdm/internal/pkg/transaction"
+	"piemdm/internal/transaction"
 	"piemdm/pkg/log"
 
 	"github.com/DATA-DOG/go-sqlmock"

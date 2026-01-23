@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"piemdm/internal/model"
-	"piemdm/internal/pkg/request"
+	"piemdm/internal/transport/request"
 	"piemdm/internal/service"
 	"piemdm/pkg/helper/resp"
 

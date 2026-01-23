@@ -101,13 +101,13 @@ func ListUsers(c *gin.Context) {
     page := 1
     pageSize := 20
     total := 100
-    
+
     // 生成分页链接
     links := resp.GeneratePaginationLinks(c.Request, page, pageSize, total)
-    
+
     // 设置 Link 头部
     c.Header("Link", links.String())
-    
+
     // 返回数据
     users := []User{/* ... */}
     resp.HandleSuccess(c, users)
@@ -118,19 +118,25 @@ func ListUsers(c *gin.Context) {
 
 ### 分工协作
 - **`resp`（本目录）**: 控制响应的**结构和格式**
-- **`internal/pkg/response`**: 定义响应的**数据结构**
+- **`internal/transport/response`**: 定义响应的**数据结构**
 
-### 配合使用示例
+- `resp` 包：**通用工具**，负责**格式化**和**标准化** API 响应
+- `response` 包：**数据定义**，负责定义 API 返回的具体**数据字段**
+
+### 示例
+
+在 Controller 中使用 `piemdm/pkg/helper/resp` 来包装 `piemdm/internal/transport/response` 定义的数据结构：
+
 ```go
 import (
     "piemdm/pkg/helper/resp"
-    "piemdm/internal/pkg/response"
+    "piemdm/internal/transport/response"
 )
 
 func GetUserDetail(c *gin.Context) {
     // 获取业务数据
     user := getUserFromDB()
-    
+
     // 转换为响应结构体
     userResp := response.UserResponse{
         ID:       user.ID,
@@ -138,7 +144,7 @@ func GetUserDetail(c *gin.Context) {
         Email:    user.Email,
         // ... 其他字段
     }
-    
+
     // 使用 resp 函数返回
     resp.HandleSuccess(c, userResp)
 }
@@ -196,6 +202,6 @@ func GetUserDetail(c *gin.Context) {
 
 ---
 
-**维护团队**: 技术架构组  
-**最后更新**: 2024年1月  
+**维护团队**: 技术架构组
+**最后更新**: 2024年1月
 **状态**: 活跃维护中 ✅

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"piemdm/internal/model"
-	"piemdm/internal/pkg/request"
+	"piemdm/internal/transport/request"
 	"piemdm/internal/repository"
 	"piemdm/pkg/helper/sid"
 	"piemdm/pkg/jwt"

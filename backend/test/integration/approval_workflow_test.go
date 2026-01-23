@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"piemdm/internal/model"
-	"piemdm/internal/pkg/request"
+	"piemdm/internal/transport/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
