@@ -97,8 +97,7 @@ docker-compose -f deploy/docker-compose.yml down
 
 ```bash
 # Build backend image
-cd backend
-docker build -t piemdm-api:latest -f scripts/build/Dockerfile .
+docker build -f backend/Dockerfile -t piemdm-api:latest .
 
 # Build frontend image
 cd frontend

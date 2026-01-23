@@ -106,10 +106,10 @@ migrate-create: ## Create new migration (usage: make migrate-create name=migrati
 
 # Docker
 docker: ## Build Docker image
-	docker build -f scripts/build/Dockerfile -t piemdm-api:latest .
+	docker build -f backend/Dockerfile -t piemdm-api:latest ..
 
 docker-dev: ## Build Docker image for development
-	docker build -f scripts/build/Dockerfile.dev -t piemdm-api:dev .
+	docker build -f backend/Dockerfile.dev -t piemdm-api:dev .
 
 docker-push: ## Push Docker image
 	docker push piemdm-api:latest

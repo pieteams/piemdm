@@ -12,8 +12,8 @@ import (
 	"piemdm/pkg/log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/piemdm/openapi-go/errors"
-	"github.com/piemdm/openapi-go/spec"
+	"github.com/pieworks/piemdm/packages/go/openapi/errors"
+	"github.com/pieworks/piemdm/packages/go/openapi/spec"
 	"github.com/spf13/viper"
 )
 

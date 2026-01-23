@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/piemdm/openapi-go/auth"
-	"github.com/piemdm/openapi-go/errors"
-	"github.com/piemdm/openapi-go/spec"
+	"github.com/pieworks/piemdm/packages/go/openapi/auth"
+	"github.com/pieworks/piemdm/packages/go/openapi/errors"
+	"github.com/pieworks/piemdm/packages/go/openapi/spec"
 )
 
 // SecretProvider 定义获取 AppSecret 的接口
