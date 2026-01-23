@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build backend image
-        run: docker build -t piemdm-backend:latest ./backend
+        run: docker build -f backend/Dockerfile -t piemdm-backend:latest .
 
       - name: Build frontend image
         run: docker build -f frontend/Dockerfile -t piemdm-frontend:latest .
