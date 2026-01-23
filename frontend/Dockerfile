@@ -4,25 +4,38 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+# Generate API Client (Pre-install to satisfy workspace dependencies)
+# We use npx to generate the client before pnpm install because pnpm install
+# requires the workspace package (api-client) to exist with a package.json.
+COPY shared/api/swagger.json ./shared/api/swagger.json
+RUN npx @openapitools/openapi-generator-cli generate \
+    -i shared/api/swagger.json \
+    -g typescript-axios \
+    -o packages/web/api-client \
+    --additional-properties=supportsES6=true,npmName=@piemdm/api-client,npmVersion=1.0.0,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models,useSingleRequestParameter=false,skipValidateSpec=true
+
+
 # Copy workspace configs
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy package definitions
 COPY frontend/package.json ./frontend/
-COPY packages/web/api-client/package.json ./packages/web/api-client/
 COPY packages/web/workflow-vue/package.json ./packages/web/workflow-vue/
 
-# Install dependencies (frozen-lockfile compatible)
+# Install dependencies
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 # Copy source code
 COPY frontend/ ./frontend/
-COPY packages/web/api-client/ ./packages/web/api-client/
 COPY packages/web/workflow-vue/ ./packages/web/workflow-vue/
 
-# Build api-client first
+# Build api-client (Generated code needs build?)
+# typescript-axios generator produces .ts files and a tsconfig.
+# Usually needs 'tsc' to build to dist.
+# The generated package.json usually has a build script?
+# Let's assume we need to build it.
 WORKDIR /app/packages/web/api-client
-RUN pnpm build
+RUN pnpm install && pnpm build
 
 # Build workflow-vue
 WORKDIR /app/packages/web/workflow-vue
