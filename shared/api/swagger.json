@@ -3523,7 +3523,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.CreateApprovalDefRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.CreateApprovalDefRequest"
                         }
                     }
                 ],
@@ -3725,7 +3725,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.UpdateApprovalDefRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.UpdateApprovalDefRequest"
                         }
                     }
                 ],
@@ -3923,7 +3923,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.CreateVersionRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.CreateVersionRequest"
                         }
                     }
                 ],
@@ -4005,7 +4005,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.CreateApprovalNodeRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.CreateApprovalNodeRequest"
                         }
                     }
                 ],
@@ -4246,7 +4246,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.UpdateApprovalNodeRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.UpdateApprovalNodeRequest"
                         }
                     }
                 ],
@@ -4709,7 +4709,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.BatchRemindRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.BatchRemindRequest"
                         }
                     }
                 ],
@@ -4931,7 +4931,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.TransferTaskRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.TransferTaskRequest"
                         }
                     }
                 ],
@@ -5153,7 +5153,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.ProcessApprovalRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.ProcessApprovalRequest"
                         }
                     }
                 ],
@@ -5187,7 +5187,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.StartApprovalRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.StartApprovalRequest"
                         }
                     }
                 ],
@@ -6295,7 +6295,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piemdm_internal_pkg_request.LoginRequest"
+                            "$ref": "#/definitions/piemdm_internal_transport_request.LoginRequest"
                         }
                     }
                 ],
@@ -8212,425 +8212,6 @@
                 }
             }
         },
-        "piemdm_internal_pkg_request.BatchRemindRequest": {
-            "type": "object",
-            "required": [
-                "assigneeId"
-            ],
-            "properties": {
-                "assigneeId": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.CreateApprovalDefRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "platform"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "maxLength": 128
-                },
-                "description": {
-                    "description": "EntityCode  string `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"`\nCategory    string `json:\"category\" binding:\"max=64\" comment:\"审批分类\"`",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "formData": {
-                    "type": "string",
-                    "maxLength": 10000
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "nodeList": {
-                    "type": "string",
-                    "maxLength": 10000
-                },
-                "platform": {
-                    "type": "string",
-                    "enum": [
-                        "Builtin",
-                        "Feishu",
-                        "DingTalk",
-                        "WeChatWork",
-                        "Custom"
-                    ]
-                },
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "Normal",
-                        "Frozen",
-                        "Deleted"
-                    ]
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.CreateApprovalNodeRequest": {
-            "type": "object",
-            "required": [
-                "NodeCode",
-                "NodeName",
-                "NodeType"
-            ],
-            "properties": {
-                "ApprovalDefCode": {
-                    "type": "string",
-                    "maxLength": 128
-                },
-                "ApproverConfig": {
-                    "type": "string",
-                    "maxLength": 2000
-                },
-                "ApproverType": {
-                    "type": "string",
-                    "enum": [
-                        "USERS",
-                        "ROLES",
-                        "DEPARTMENTS",
-                        "AUTO_REJECT",
-                        "AUTO_APPROVE",
-                        "SYSTEM"
-                    ]
-                },
-                "ConditionConfig": {
-                    "description": "ApprovalMode    string `json:\"ApprovalMode\" binding:\"oneof=OR AND SEQUENTIAL\" comment:\"审批模式\"`",
-                    "type": "string",
-                    "maxLength": 5000
-                },
-                "NodeCode": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "NodeName": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "NodeType": {
-                    "type": "string",
-                    "enum": [
-                        "START",
-                        "APPROVAL",
-                        "CONDITION",
-                        "AUTO_REJECT",
-                        "AUTO_APPROVE",
-                        "CC",
-                        "END"
-                    ]
-                },
-                "SortOrder": {
-                    "description": "// TimeoutHours    int    `json:\"TimeoutHours\" binding:\"min=0,max=720\" comment:\"超时时间(小时)\"`",
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "status": {
-                    "description": "// IsRequired       bool   `json:\"IsRequired\" comment:\"是否必须\"`\n// AllowReject      bool   `json:\"AllowReject\" comment:\"允许拒绝\"`\n// AllowTransfer    bool   `json:\"AllowTransfer\" comment:\"允许转交\"`\n// AutoApprove      bool   `json:\"AutoApprove\" comment:\"自动审批\"`\n// NotifyConfig     string `json:\"NotifyConfig\" binding:\"max=2000\" comment:\"通知配置\"`\n// FormConfig       string `json:\"FormConfig\" binding:\"max=5000\" comment:\"表单配置\"`\n// PermissionConfig string `json:\"PermissionConfig\" binding:\"max=2000\" comment:\"权限配置\"`\n// Remark           string `json:\"Remark\" binding:\"max=500\" comment:\"备注\"`",
-                    "type": "string",
-                    "enum": [
-                        "Normal",
-                        "Frozen",
-                        "Deleted"
-                    ]
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.CreateVersionRequest": {
-            "type": "object",
-            "required": [
-                "comment",
-                "id"
-            ],
-            "properties": {
-                "comment": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1
-                },
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.LoginRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.ProcessApprovalRequest": {
-            "type": "object",
-            "required": [
-                "action",
-                "approvalCode",
-                "nodeCode"
-            ],
-            "properties": {
-                "action": {
-                    "type": "string",
-                    "enum": [
-                        "APPROVE",
-                        "REJECT",
-                        "TRANSFER",
-                        "DELEGATE"
-                    ]
-                },
-                "approvalCode": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "comment": {
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "nodeCode": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.StartApprovalRequest": {
-            "type": "object",
-            "required": [
-                "approvalDefCode",
-                "title"
-            ],
-            "properties": {
-                "approvalDefCode": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "entityId": {
-                    "type": "string",
-                    "maxLength": 64
-                },
-                "expectedDate": {
-                    "type": "string"
-                },
-                "formData": {
-                    "type": "string",
-                    "maxLength": 20000
-                },
-                "priority": {
-                    "type": "integer",
-                    "maximum": 10,
-                    "minimum": 0
-                },
-                "remark": {
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1
-                },
-                "urgency": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "NORMAL",
-                        "HIGH",
-                        "URGENT"
-                    ]
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.TransferTaskRequest": {
-            "type": "object",
-            "required": [
-                "reason",
-                "taskId",
-                "toUserId",
-                "toUserName"
-            ],
-            "properties": {
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 1
-                },
-                "taskId": {
-                    "type": "integer"
-                },
-                "toUserId": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "toUserName": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.UpdateApprovalDefRequest": {
-            "type": "object",
-            "required": [
-                "id",
-                "name",
-                "platform"
-            ],
-            "properties": {
-                "description": {
-                    "description": "EntityCode  string `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"`\nCategory    string `json:\"category\" binding:\"max=64\" comment:\"审批分类\"`",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "formData": {
-                    "type": "string",
-                    "maxLength": 10000
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "nodeList": {
-                    "type": "string",
-                    "maxLength": 10000
-                },
-                "platform": {
-                    "type": "string",
-                    "enum": [
-                        "Builtin",
-                        "Feishu",
-                        "DingTalk",
-                        "WeChatWork",
-                        "Custom"
-                    ]
-                },
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "Normal",
-                        "Frozen",
-                        "Deleted"
-                    ]
-                }
-            }
-        },
-        "piemdm_internal_pkg_request.UpdateApprovalNodeRequest": {
-            "type": "object",
-            "required": [
-                "id",
-                "nodeName",
-                "nodeType"
-            ],
-            "properties": {
-                "allowReject": {
-                    "type": "boolean"
-                },
-                "allowTransfer": {
-                    "type": "boolean"
-                },
-                "approvalMode": {
-                    "type": "string",
-                    "enum": [
-                        "OR",
-                        "AND",
-                        "SEQUENTIAL"
-                    ]
-                },
-                "approverConfig": {
-                    "type": "string",
-                    "maxLength": 2000
-                },
-                "approverType": {
-                    "type": "string",
-                    "enum": [
-                        "USER",
-                        "ROLE",
-                        "DEPT",
-                        "EXPRESSION"
-                    ]
-                },
-                "autoApprove": {
-                    "type": "boolean"
-                },
-                "conditionConfig": {
-                    "type": "string",
-                    "maxLength": 5000
-                },
-                "formConfig": {
-                    "type": "string",
-                    "maxLength": 5000
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isRequired": {
-                    "type": "boolean"
-                },
-                "nodeName": {
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "nodeType": {
-                    "type": "string",
-                    "enum": [
-                        "START",
-                        "APPROVAL",
-                        "CONDITION",
-                        "PARALLEL",
-                        "MERGE",
-                        "CC",
-                        "END"
-                    ]
-                },
-                "notifyConfig": {
-                    "type": "string",
-                    "maxLength": 2000
-                },
-                "permissionConfig": {
-                    "type": "string",
-                    "maxLength": 2000
-                },
-                "remark": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "sortOrder": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "timeoutHours": {
-                    "type": "integer",
-                    "maximum": 720,
-                    "minimum": 0
-                }
-            }
-        },
         "piemdm_internal_service.ApprovalNotificationRequest": {
             "type": "object",
             "properties": {
@@ -8844,6 +8425,425 @@
                 "Variables": {
                     "type": "object",
                     "additionalProperties": {}
+                }
+            }
+        },
+        "piemdm_internal_transport_request.BatchRemindRequest": {
+            "type": "object",
+            "required": [
+                "assigneeId"
+            ],
+            "properties": {
+                "assigneeId": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 1
+                }
+            }
+        },
+        "piemdm_internal_transport_request.CreateApprovalDefRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "platform"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "description": {
+                    "description": "EntityCode  string `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"`\nCategory    string `json:\"category\" binding:\"max=64\" comment:\"审批分类\"`",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "formData": {
+                    "type": "string",
+                    "maxLength": 10000
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "nodeList": {
+                    "type": "string",
+                    "maxLength": 10000
+                },
+                "platform": {
+                    "type": "string",
+                    "enum": [
+                        "Builtin",
+                        "Feishu",
+                        "DingTalk",
+                        "WeChatWork",
+                        "Custom"
+                    ]
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "Normal",
+                        "Frozen",
+                        "Deleted"
+                    ]
+                }
+            }
+        },
+        "piemdm_internal_transport_request.CreateApprovalNodeRequest": {
+            "type": "object",
+            "required": [
+                "NodeCode",
+                "NodeName",
+                "NodeType"
+            ],
+            "properties": {
+                "ApprovalDefCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "ApproverConfig": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
+                "ApproverType": {
+                    "type": "string",
+                    "enum": [
+                        "USERS",
+                        "ROLES",
+                        "DEPARTMENTS",
+                        "AUTO_REJECT",
+                        "AUTO_APPROVE",
+                        "SYSTEM"
+                    ]
+                },
+                "ConditionConfig": {
+                    "description": "ApprovalMode    string `json:\"ApprovalMode\" binding:\"oneof=OR AND SEQUENTIAL\" comment:\"审批模式\"`",
+                    "type": "string",
+                    "maxLength": 5000
+                },
+                "NodeCode": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 1
+                },
+                "NodeName": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "NodeType": {
+                    "type": "string",
+                    "enum": [
+                        "START",
+                        "APPROVAL",
+                        "CONDITION",
+                        "AUTO_REJECT",
+                        "AUTO_APPROVE",
+                        "CC",
+                        "END"
+                    ]
+                },
+                "SortOrder": {
+                    "description": "// TimeoutHours    int    `json:\"TimeoutHours\" binding:\"min=0,max=720\" comment:\"超时时间(小时)\"`",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "status": {
+                    "description": "// IsRequired       bool   `json:\"IsRequired\" comment:\"是否必须\"`\n// AllowReject      bool   `json:\"AllowReject\" comment:\"允许拒绝\"`\n// AllowTransfer    bool   `json:\"AllowTransfer\" comment:\"允许转交\"`\n// AutoApprove      bool   `json:\"AutoApprove\" comment:\"自动审批\"`\n// NotifyConfig     string `json:\"NotifyConfig\" binding:\"max=2000\" comment:\"通知配置\"`\n// FormConfig       string `json:\"FormConfig\" binding:\"max=5000\" comment:\"表单配置\"`\n// PermissionConfig string `json:\"PermissionConfig\" binding:\"max=2000\" comment:\"权限配置\"`\n// Remark           string `json:\"Remark\" binding:\"max=500\" comment:\"备注\"`",
+                    "type": "string",
+                    "enum": [
+                        "Normal",
+                        "Frozen",
+                        "Deleted"
+                    ]
+                }
+            }
+        },
+        "piemdm_internal_transport_request.CreateVersionRequest": {
+            "type": "object",
+            "required": [
+                "comment",
+                "id"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "piemdm_internal_transport_request.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "piemdm_internal_transport_request.ProcessApprovalRequest": {
+            "type": "object",
+            "required": [
+                "action",
+                "approvalCode",
+                "nodeCode"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "APPROVE",
+                        "REJECT",
+                        "TRANSFER",
+                        "DELEGATE"
+                    ]
+                },
+                "approvalCode": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "comment": {
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "nodeCode": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 1
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                }
+            }
+        },
+        "piemdm_internal_transport_request.StartApprovalRequest": {
+            "type": "object",
+            "required": [
+                "approvalDefCode",
+                "title"
+            ],
+            "properties": {
+                "approvalDefCode": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "entityId": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "expectedDate": {
+                    "type": "string"
+                },
+                "formData": {
+                    "type": "string",
+                    "maxLength": 20000
+                },
+                "priority": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 0
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1
+                },
+                "urgency": {
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                    ]
+                }
+            }
+        },
+        "piemdm_internal_transport_request.TransferTaskRequest": {
+            "type": "object",
+            "required": [
+                "reason",
+                "taskId",
+                "toUserId",
+                "toUserName"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "taskId": {
+                    "type": "integer"
+                },
+                "toUserId": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 1
+                },
+                "toUserName": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                }
+            }
+        },
+        "piemdm_internal_transport_request.UpdateApprovalDefRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "platform"
+            ],
+            "properties": {
+                "description": {
+                    "description": "EntityCode  string `json:\"entityCode\" binding:\"required,min=1,max=64\" comment:\"关联实体编码\"`\nCategory    string `json:\"category\" binding:\"max=64\" comment:\"审批分类\"`",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "formData": {
+                    "type": "string",
+                    "maxLength": 10000
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "nodeList": {
+                    "type": "string",
+                    "maxLength": 10000
+                },
+                "platform": {
+                    "type": "string",
+                    "enum": [
+                        "Builtin",
+                        "Feishu",
+                        "DingTalk",
+                        "WeChatWork",
+                        "Custom"
+                    ]
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "Normal",
+                        "Frozen",
+                        "Deleted"
+                    ]
+                }
+            }
+        },
+        "piemdm_internal_transport_request.UpdateApprovalNodeRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "nodeName",
+                "nodeType"
+            ],
+            "properties": {
+                "allowReject": {
+                    "type": "boolean"
+                },
+                "allowTransfer": {
+                    "type": "boolean"
+                },
+                "approvalMode": {
+                    "type": "string",
+                    "enum": [
+                        "OR",
+                        "AND",
+                        "SEQUENTIAL"
+                    ]
+                },
+                "approverConfig": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
+                "approverType": {
+                    "type": "string",
+                    "enum": [
+                        "USER",
+                        "ROLE",
+                        "DEPT",
+                        "EXPRESSION"
+                    ]
+                },
+                "autoApprove": {
+                    "type": "boolean"
+                },
+                "conditionConfig": {
+                    "type": "string",
+                    "maxLength": 5000
+                },
+                "formConfig": {
+                    "type": "string",
+                    "maxLength": 5000
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isRequired": {
+                    "type": "boolean"
+                },
+                "nodeName": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "nodeType": {
+                    "type": "string",
+                    "enum": [
+                        "START",
+                        "APPROVAL",
+                        "CONDITION",
+                        "PARALLEL",
+                        "MERGE",
+                        "CC",
+                        "END"
+                    ]
+                },
+                "notifyConfig": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
+                "permissionConfig": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "sortOrder": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "timeoutHours": {
+                    "type": "integer",
+                    "maximum": 720,
+                    "minimum": 0
                 }
             }
         }

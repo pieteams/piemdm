@@ -1289,335 +1289,6 @@ definitions:
     - entityID
     - hookID
     type: object
-  piemdm_internal_pkg_request.BatchRemindRequest:
-    properties:
-      assigneeId:
-        maxLength: 64
-        minLength: 1
-        type: string
-    required:
-    - assigneeId
-    type: object
-  piemdm_internal_pkg_request.CreateApprovalDefRequest:
-    properties:
-      code:
-        maxLength: 128
-        type: string
-      description:
-        description: |-
-          EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
-          Category    string `json:"category" binding:"max=64" comment:"审批分类"`
-        maxLength: 500
-        type: string
-      formData:
-        maxLength: 10000
-        type: string
-      name:
-        maxLength: 128
-        minLength: 1
-        type: string
-      nodeList:
-        maxLength: 10000
-        type: string
-      platform:
-        enum:
-        - Builtin
-        - Feishu
-        - DingTalk
-        - WeChatWork
-        - Custom
-        type: string
-      status:
-        enum:
-        - Normal
-        - Frozen
-        - Deleted
-        type: string
-    required:
-    - name
-    - platform
-    type: object
-  piemdm_internal_pkg_request.CreateApprovalNodeRequest:
-    properties:
-      ApprovalDefCode:
-        maxLength: 128
-        type: string
-      ApproverConfig:
-        maxLength: 2000
-        type: string
-      ApproverType:
-        enum:
-        - USERS
-        - ROLES
-        - DEPARTMENTS
-        - AUTO_REJECT
-        - AUTO_APPROVE
-        - SYSTEM
-        type: string
-      ConditionConfig:
-        description: ApprovalMode    string `json:"ApprovalMode" binding:"oneof=OR
-          AND SEQUENTIAL" comment:"审批模式"`
-        maxLength: 5000
-        type: string
-      NodeCode:
-        maxLength: 64
-        minLength: 1
-        type: string
-      NodeName:
-        maxLength: 128
-        minLength: 1
-        type: string
-      NodeType:
-        enum:
-        - START
-        - APPROVAL
-        - CONDITION
-        - AUTO_REJECT
-        - AUTO_APPROVE
-        - CC
-        - END
-        type: string
-      SortOrder:
-        description: // TimeoutHours    int    `json:"TimeoutHours" binding:"min=0,max=720"
-          comment:"超时时间(小时)"`
-        minimum: 0
-        type: integer
-      status:
-        description: |-
-          // IsRequired       bool   `json:"IsRequired" comment:"是否必须"`
-          // AllowReject      bool   `json:"AllowReject" comment:"允许拒绝"`
-          // AllowTransfer    bool   `json:"AllowTransfer" comment:"允许转交"`
-          // AutoApprove      bool   `json:"AutoApprove" comment:"自动审批"`
-          // NotifyConfig     string `json:"NotifyConfig" binding:"max=2000" comment:"通知配置"`
-          // FormConfig       string `json:"FormConfig" binding:"max=5000" comment:"表单配置"`
-          // PermissionConfig string `json:"PermissionConfig" binding:"max=2000" comment:"权限配置"`
-          // Remark           string `json:"Remark" binding:"max=500" comment:"备注"`
-        enum:
-        - Normal
-        - Frozen
-        - Deleted
-        type: string
-    required:
-    - NodeCode
-    - NodeName
-    - NodeType
-    type: object
-  piemdm_internal_pkg_request.CreateVersionRequest:
-    properties:
-      comment:
-        maxLength: 255
-        minLength: 1
-        type: string
-      id:
-        type: integer
-    required:
-    - comment
-    - id
-    type: object
-  piemdm_internal_pkg_request.LoginRequest:
-    properties:
-      password:
-        type: string
-      username:
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  piemdm_internal_pkg_request.ProcessApprovalRequest:
-    properties:
-      action:
-        enum:
-        - APPROVE
-        - REJECT
-        - TRANSFER
-        - DELEGATE
-        type: string
-      approvalCode:
-        maxLength: 128
-        minLength: 1
-        type: string
-      comment:
-        maxLength: 1000
-        type: string
-      nodeCode:
-        maxLength: 64
-        minLength: 1
-        type: string
-      reason:
-        maxLength: 500
-        type: string
-    required:
-    - action
-    - approvalCode
-    - nodeCode
-    type: object
-  piemdm_internal_pkg_request.StartApprovalRequest:
-    properties:
-      approvalDefCode:
-        maxLength: 128
-        minLength: 1
-        type: string
-      entityId:
-        maxLength: 64
-        type: string
-      expectedDate:
-        type: string
-      formData:
-        maxLength: 20000
-        type: string
-      priority:
-        maximum: 10
-        minimum: 0
-        type: integer
-      remark:
-        maxLength: 1000
-        type: string
-      title:
-        maxLength: 255
-        minLength: 1
-        type: string
-      urgency:
-        enum:
-        - LOW
-        - NORMAL
-        - HIGH
-        - URGENT
-        type: string
-    required:
-    - approvalDefCode
-    - title
-    type: object
-  piemdm_internal_pkg_request.TransferTaskRequest:
-    properties:
-      reason:
-        maxLength: 500
-        minLength: 1
-        type: string
-      taskId:
-        type: integer
-      toUserId:
-        maxLength: 64
-        minLength: 1
-        type: string
-      toUserName:
-        maxLength: 128
-        minLength: 1
-        type: string
-    required:
-    - reason
-    - taskId
-    - toUserId
-    - toUserName
-    type: object
-  piemdm_internal_pkg_request.UpdateApprovalDefRequest:
-    properties:
-      description:
-        description: |-
-          EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
-          Category    string `json:"category" binding:"max=64" comment:"审批分类"`
-        maxLength: 500
-        type: string
-      formData:
-        maxLength: 10000
-        type: string
-      id:
-        type: integer
-      name:
-        maxLength: 128
-        minLength: 1
-        type: string
-      nodeList:
-        maxLength: 10000
-        type: string
-      platform:
-        enum:
-        - Builtin
-        - Feishu
-        - DingTalk
-        - WeChatWork
-        - Custom
-        type: string
-      status:
-        enum:
-        - Normal
-        - Frozen
-        - Deleted
-        type: string
-    required:
-    - id
-    - name
-    - platform
-    type: object
-  piemdm_internal_pkg_request.UpdateApprovalNodeRequest:
-    properties:
-      allowReject:
-        type: boolean
-      allowTransfer:
-        type: boolean
-      approvalMode:
-        enum:
-        - OR
-        - AND
-        - SEQUENTIAL
-        type: string
-      approverConfig:
-        maxLength: 2000
-        type: string
-      approverType:
-        enum:
-        - USER
-        - ROLE
-        - DEPT
-        - EXPRESSION
-        type: string
-      autoApprove:
-        type: boolean
-      conditionConfig:
-        maxLength: 5000
-        type: string
-      formConfig:
-        maxLength: 5000
-        type: string
-      id:
-        type: integer
-      isRequired:
-        type: boolean
-      nodeName:
-        maxLength: 128
-        minLength: 1
-        type: string
-      nodeType:
-        enum:
-        - START
-        - APPROVAL
-        - CONDITION
-        - PARALLEL
-        - MERGE
-        - CC
-        - END
-        type: string
-      notifyConfig:
-        maxLength: 2000
-        type: string
-      permissionConfig:
-        maxLength: 2000
-        type: string
-      remark:
-        maxLength: 500
-        type: string
-      sortOrder:
-        minimum: 0
-        type: integer
-      timeoutHours:
-        maximum: 720
-        minimum: 0
-        type: integer
-    required:
-    - id
-    - nodeName
-    - nodeType
-    type: object
   piemdm_internal_service.ApprovalNotificationRequest:
     properties:
       approval_id:
@@ -1774,6 +1445,335 @@ definitions:
     required:
     - ContentTemplate
     - TitleTemplate
+    type: object
+  piemdm_internal_transport_request.BatchRemindRequest:
+    properties:
+      assigneeId:
+        maxLength: 64
+        minLength: 1
+        type: string
+    required:
+    - assigneeId
+    type: object
+  piemdm_internal_transport_request.CreateApprovalDefRequest:
+    properties:
+      code:
+        maxLength: 128
+        type: string
+      description:
+        description: |-
+          EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
+          Category    string `json:"category" binding:"max=64" comment:"审批分类"`
+        maxLength: 500
+        type: string
+      formData:
+        maxLength: 10000
+        type: string
+      name:
+        maxLength: 128
+        minLength: 1
+        type: string
+      nodeList:
+        maxLength: 10000
+        type: string
+      platform:
+        enum:
+        - Builtin
+        - Feishu
+        - DingTalk
+        - WeChatWork
+        - Custom
+        type: string
+      status:
+        enum:
+        - Normal
+        - Frozen
+        - Deleted
+        type: string
+    required:
+    - name
+    - platform
+    type: object
+  piemdm_internal_transport_request.CreateApprovalNodeRequest:
+    properties:
+      ApprovalDefCode:
+        maxLength: 128
+        type: string
+      ApproverConfig:
+        maxLength: 2000
+        type: string
+      ApproverType:
+        enum:
+        - USERS
+        - ROLES
+        - DEPARTMENTS
+        - AUTO_REJECT
+        - AUTO_APPROVE
+        - SYSTEM
+        type: string
+      ConditionConfig:
+        description: ApprovalMode    string `json:"ApprovalMode" binding:"oneof=OR
+          AND SEQUENTIAL" comment:"审批模式"`
+        maxLength: 5000
+        type: string
+      NodeCode:
+        maxLength: 64
+        minLength: 1
+        type: string
+      NodeName:
+        maxLength: 128
+        minLength: 1
+        type: string
+      NodeType:
+        enum:
+        - START
+        - APPROVAL
+        - CONDITION
+        - AUTO_REJECT
+        - AUTO_APPROVE
+        - CC
+        - END
+        type: string
+      SortOrder:
+        description: // TimeoutHours    int    `json:"TimeoutHours" binding:"min=0,max=720"
+          comment:"超时时间(小时)"`
+        minimum: 0
+        type: integer
+      status:
+        description: |-
+          // IsRequired       bool   `json:"IsRequired" comment:"是否必须"`
+          // AllowReject      bool   `json:"AllowReject" comment:"允许拒绝"`
+          // AllowTransfer    bool   `json:"AllowTransfer" comment:"允许转交"`
+          // AutoApprove      bool   `json:"AutoApprove" comment:"自动审批"`
+          // NotifyConfig     string `json:"NotifyConfig" binding:"max=2000" comment:"通知配置"`
+          // FormConfig       string `json:"FormConfig" binding:"max=5000" comment:"表单配置"`
+          // PermissionConfig string `json:"PermissionConfig" binding:"max=2000" comment:"权限配置"`
+          // Remark           string `json:"Remark" binding:"max=500" comment:"备注"`
+        enum:
+        - Normal
+        - Frozen
+        - Deleted
+        type: string
+    required:
+    - NodeCode
+    - NodeName
+    - NodeType
+    type: object
+  piemdm_internal_transport_request.CreateVersionRequest:
+    properties:
+      comment:
+        maxLength: 255
+        minLength: 1
+        type: string
+      id:
+        type: integer
+    required:
+    - comment
+    - id
+    type: object
+  piemdm_internal_transport_request.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  piemdm_internal_transport_request.ProcessApprovalRequest:
+    properties:
+      action:
+        enum:
+        - APPROVE
+        - REJECT
+        - TRANSFER
+        - DELEGATE
+        type: string
+      approvalCode:
+        maxLength: 128
+        minLength: 1
+        type: string
+      comment:
+        maxLength: 1000
+        type: string
+      nodeCode:
+        maxLength: 64
+        minLength: 1
+        type: string
+      reason:
+        maxLength: 500
+        type: string
+    required:
+    - action
+    - approvalCode
+    - nodeCode
+    type: object
+  piemdm_internal_transport_request.StartApprovalRequest:
+    properties:
+      approvalDefCode:
+        maxLength: 128
+        minLength: 1
+        type: string
+      entityId:
+        maxLength: 64
+        type: string
+      expectedDate:
+        type: string
+      formData:
+        maxLength: 20000
+        type: string
+      priority:
+        maximum: 10
+        minimum: 0
+        type: integer
+      remark:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      urgency:
+        enum:
+        - LOW
+        - NORMAL
+        - HIGH
+        - URGENT
+        type: string
+    required:
+    - approvalDefCode
+    - title
+    type: object
+  piemdm_internal_transport_request.TransferTaskRequest:
+    properties:
+      reason:
+        maxLength: 500
+        minLength: 1
+        type: string
+      taskId:
+        type: integer
+      toUserId:
+        maxLength: 64
+        minLength: 1
+        type: string
+      toUserName:
+        maxLength: 128
+        minLength: 1
+        type: string
+    required:
+    - reason
+    - taskId
+    - toUserId
+    - toUserName
+    type: object
+  piemdm_internal_transport_request.UpdateApprovalDefRequest:
+    properties:
+      description:
+        description: |-
+          EntityCode  string `json:"entityCode" binding:"required,min=1,max=64" comment:"关联实体编码"`
+          Category    string `json:"category" binding:"max=64" comment:"审批分类"`
+        maxLength: 500
+        type: string
+      formData:
+        maxLength: 10000
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 128
+        minLength: 1
+        type: string
+      nodeList:
+        maxLength: 10000
+        type: string
+      platform:
+        enum:
+        - Builtin
+        - Feishu
+        - DingTalk
+        - WeChatWork
+        - Custom
+        type: string
+      status:
+        enum:
+        - Normal
+        - Frozen
+        - Deleted
+        type: string
+    required:
+    - id
+    - name
+    - platform
+    type: object
+  piemdm_internal_transport_request.UpdateApprovalNodeRequest:
+    properties:
+      allowReject:
+        type: boolean
+      allowTransfer:
+        type: boolean
+      approvalMode:
+        enum:
+        - OR
+        - AND
+        - SEQUENTIAL
+        type: string
+      approverConfig:
+        maxLength: 2000
+        type: string
+      approverType:
+        enum:
+        - USER
+        - ROLE
+        - DEPT
+        - EXPRESSION
+        type: string
+      autoApprove:
+        type: boolean
+      conditionConfig:
+        maxLength: 5000
+        type: string
+      formConfig:
+        maxLength: 5000
+        type: string
+      id:
+        type: integer
+      isRequired:
+        type: boolean
+      nodeName:
+        maxLength: 128
+        minLength: 1
+        type: string
+      nodeType:
+        enum:
+        - START
+        - APPROVAL
+        - CONDITION
+        - PARALLEL
+        - MERGE
+        - CC
+        - END
+        type: string
+      notifyConfig:
+        maxLength: 2000
+        type: string
+      permissionConfig:
+        maxLength: 2000
+        type: string
+      remark:
+        maxLength: 500
+        type: string
+      sortOrder:
+        minimum: 0
+        type: integer
+      timeoutHours:
+        maximum: 720
+        minimum: 0
+        type: integer
+    required:
+    - id
+    - nodeName
+    - nodeType
     type: object
 host: localhost:8787
 info:
@@ -4080,7 +4080,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.CreateApprovalDefRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.CreateApprovalDefRequest'
       produces:
       - application/json
       responses:
@@ -4145,7 +4145,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.UpdateApprovalDefRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.UpdateApprovalDefRequest'
       produces:
       - application/json
       responses:
@@ -4255,7 +4255,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.CreateVersionRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.CreateVersionRequest'
       produces:
       - application/json
       responses:
@@ -4394,7 +4394,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.CreateApprovalNodeRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.CreateApprovalNodeRequest'
       produces:
       - application/json
       responses:
@@ -4459,7 +4459,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.UpdateApprovalNodeRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.UpdateApprovalNodeRequest'
       produces:
       - application/json
       responses:
@@ -4879,7 +4879,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.TransferTaskRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.TransferTaskRequest'
       produces:
       - application/json
       responses:
@@ -4967,7 +4967,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.BatchRemindRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.BatchRemindRequest'
       produces:
       - application/json
       responses:
@@ -5186,7 +5186,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.ProcessApprovalRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.ProcessApprovalRequest'
       produces:
       - application/json
       responses:
@@ -5208,7 +5208,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.StartApprovalRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.StartApprovalRequest'
       produces:
       - application/json
       responses:
@@ -5898,7 +5898,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/piemdm_internal_pkg_request.LoginRequest'
+          $ref: '#/definitions/piemdm_internal_transport_request.LoginRequest'
       produces:
       - application/json
       responses:
