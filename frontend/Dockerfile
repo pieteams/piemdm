@@ -23,7 +23,7 @@ COPY shared/api/swagger.json ./shared/api/swagger.json
 COPY frontend/orval.config.ts ./frontend/
 
 WORKDIR /app/frontend
-RUN pnpm orval
+RUN pnpm gen:api
 
 # Return to root for further build steps
 WORKDIR /app

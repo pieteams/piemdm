@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "gen:api": "openapi-generator-cli generate",
+    "gen:api": "orval --config ./orval.config.ts",
     "i18n": "node scripts/i18n-extract.js",
     "preview": "vite preview",
     "test": "vitest",
@@ -39,7 +39,6 @@
     "yup": "^1.7.0"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.27.0",
     "@types/bootstrap": "^5.2.10",
     "@types/http-link-header": "^1.0.7",
     "@types/prismjs": "^1.26.5",
@@ -52,7 +51,7 @@
     "happy-dom": "^12.10.3",
     "jsdom": "^26.1.0",
     "mockjs": "^1.1.0",
-    "orval": "^8.0.3",
+    "orval": "^7.20.0",
     "qrcode-terminal": "^0.12.0",
     "sass": "^1.94.2",
     "typescript": "^5.9.3",
