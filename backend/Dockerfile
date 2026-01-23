@@ -19,7 +19,7 @@ RUN go mod download -C backend && go mod download -C packages/go/openapi
 # Copy source code
 COPY backend ./backend
 COPY packages/go/openapi ./packages/go/openapi
-COPY shared ./shared
+
 
 # Build the application
 WORKDIR /workspace/backend
