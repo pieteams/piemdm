@@ -13,6 +13,9 @@ hero:
     - theme: alt
       text: API Reference
       link: /reference/api
+    - theme: alt
+      text: GitHub
+      link: https://github.com/pieworks/piemdm
 
 features:
   - title: Modern Stack

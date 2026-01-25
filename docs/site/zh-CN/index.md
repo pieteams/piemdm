@@ -13,6 +13,9 @@ hero:
     - theme: alt
       text: API 参考
       link: /zh-CN/reference/api
+    - theme: alt
+      text: GitHub
+      link: https://github.com/pieworks/piemdm
 
 features:
   - title: 现代技术栈

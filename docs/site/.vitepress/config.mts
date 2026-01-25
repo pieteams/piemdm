@@ -16,6 +16,16 @@ export default defineConfig({
       gtag('config', 'G-LBRJN3MR40');
     `]
     ],
+    themeConfig: {
+        socialLinks: [
+            { icon: 'github', link: 'https://github.com/pieworks/piemdm' }
+        ],
+
+        footer: {
+            message: 'Released under the MIT License.',
+            copyright: 'Copyright © 2019-present PieWorks'
+        },
+    },
     locales: {
         root: {
             label: 'English',
