@@ -9,7 +9,7 @@ import (
 	"piemdm/internal/model"
 	"piemdm/internal/repository"
 	"piemdm/internal/service"
-	"piemdm/pkg/config"
+	"piemdm/pkg/configloader"
 	"piemdm/pkg/log"
 
 	"github.com/spf13/viper"
@@ -38,7 +38,7 @@ func (suite *NotificationFlowTestSuite) SetupSuite() {
 		suite.T().Skip("配置文件不存在，跳过集成测试")
 	}
 	os.Setenv("APP_CONF", configPath)
-	suite.v = config.NewConfig()
+	suite.v, _ = configloader.Load()
 
 	suite.logger = log.NewLog(suite.v)
 

@@ -5,6 +5,7 @@
 package mock_service
 
 import (
+	context "context"
 	io "io"
 	model "piemdm/internal/model"
 	reflect "reflect"
@@ -151,17 +152,17 @@ func (mr *MockApprovalServiceMockRecorder) Create(c, approval interface{}) *gomo
 }
 
 // CreateApprovalFlow mocks base method.
-func (m *MockApprovalService) CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string) error {
+func (m *MockApprovalService) CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string, formData map[string]any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateApprovalFlow", c, tableCode, approvalInfo)
+	ret := m.ctrl.Call(m, "CreateApprovalFlow", c, tableCode, approvalInfo, formData)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateApprovalFlow indicates an expected call of CreateApprovalFlow.
-func (mr *MockApprovalServiceMockRecorder) CreateApprovalFlow(c, tableCode, approvalInfo interface{}) *gomock.Call {
+func (mr *MockApprovalServiceMockRecorder) CreateApprovalFlow(c, tableCode, approvalInfo, formData interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApprovalFlow", reflect.TypeOf((*MockApprovalService)(nil).CreateApprovalFlow), c, tableCode, approvalInfo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApprovalFlow", reflect.TypeOf((*MockApprovalService)(nil).CreateApprovalFlow), c, tableCode, approvalInfo, formData)
 }
 
 // CreateApprovalInstance mocks base method.
@@ -629,6 +630,20 @@ func (m *MockApprovalService) StartApprovalFlow(c *gin.Context, approvalDefCode,
 func (mr *MockApprovalServiceMockRecorder) StartApprovalFlow(c, approvalDefCode, applicantID, title, formData interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartApprovalFlow", reflect.TypeOf((*MockApprovalService)(nil).StartApprovalFlow), c, approvalDefCode, applicantID, title, formData)
+}
+
+// SyncFeishuSubscriptions mocks base method.
+func (m *MockApprovalService) SyncFeishuSubscriptions(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SyncFeishuSubscriptions", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SyncFeishuSubscriptions indicates an expected call of SyncFeishuSubscriptions.
+func (mr *MockApprovalServiceMockRecorder) SyncFeishuSubscriptions(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncFeishuSubscriptions", reflect.TypeOf((*MockApprovalService)(nil).SyncFeishuSubscriptions), ctx)
 }
 
 // TransferTask mocks base method.

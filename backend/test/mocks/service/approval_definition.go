@@ -314,6 +314,21 @@ func (mr *MockApprovalDefinitionServiceMockRecorder) Publish(id interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockApprovalDefinitionService)(nil).Publish), id)
 }
 
+// SyncFeishuDefinition mocks base method.
+func (m *MockApprovalDefinitionService) SyncFeishuDefinition(code string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SyncFeishuDefinition", code)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SyncFeishuDefinition indicates an expected call of SyncFeishuDefinition.
+func (mr *MockApprovalDefinitionServiceMockRecorder) SyncFeishuDefinition(code interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncFeishuDefinition", reflect.TypeOf((*MockApprovalDefinitionService)(nil).SyncFeishuDefinition), code)
+}
+
 // Update mocks base method.
 func (m *MockApprovalDefinitionService) Update(c *gin.Context, approvalDefinition *model.ApprovalDefinition) error {
 	m.ctrl.T.Helper()

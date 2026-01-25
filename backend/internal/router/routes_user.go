@@ -73,6 +73,14 @@ func registerUserRoutes(r *gin.RouterGroup, h *Handlers) {
 			approvals.POST("/task/:id/approve", h.Approval.ApproveTask)
 			approvals.POST("/task/:id/reject", h.Approval.RejectTask)
 		}
+
+		// 审批定义相关路由 (用户只读权限)
+		approvalDefinitions := userRouter.Group("/approval_defs")
+		{
+			approvalDefinitions.GET("/code/:code", h.ApprovalDefinition.GetByCode)
+		}
+
+		// 工作流相关路由
 		// 工作流相关路由
 		hookDeliveries := userRouter.Group("/webhook_deliveries")
 		{

@@ -348,6 +348,21 @@ func (mr *MockApprovalRepositoryMockRecorder) FirstByCode(code interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FirstByCode", reflect.TypeOf((*MockApprovalRepository)(nil).FirstByCode), code)
 }
 
+// FirstByExternalInstanceID mocks base method.
+func (m *MockApprovalRepository) FirstByExternalInstanceID(externalID string) (*model.Approval, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FirstByExternalInstanceID", externalID)
+	ret0, _ := ret[0].(*model.Approval)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FirstByExternalInstanceID indicates an expected call of FirstByExternalInstanceID.
+func (mr *MockApprovalRepositoryMockRecorder) FirstByExternalInstanceID(externalID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FirstByExternalInstanceID", reflect.TypeOf((*MockApprovalRepository)(nil).FirstByExternalInstanceID), externalID)
+}
+
 // SaveToQueue mocks base method.
 func (m *MockApprovalRepository) SaveToQueue(webhookReq model.WebhookReq) error {
 	m.ctrl.T.Helper()

@@ -79,7 +79,6 @@
         <!-- margin-top: 115px;min-height: 658px; -->
         <div class="table-responsive text-nowrap"
           style="min-height: calc(100vh - 325px); overflow-y: auto; font-size: 0.9rem" v-if="total">
-
           <!-- Tree Table Mode -->
           <TreeTable v-if="displayMode === 'Tree'" :items="tableData" :fields="fields" :table-code="params.table_code"
             :frozen-column-code="frozenColumnCode" v-model:selected="selected">
@@ -112,7 +111,7 @@
           </TreeTable>
 
           <!-- Standard List Mode -->
-          <table v-else class="table table-sm table-bordered table-striped table-hover w-100 mb-0">
+          <table v-else class="table table-sm table-bordered table-striped table-hover w-100 mb-0 sticky-table">
             <thead class="table-light">
               <tr>
                 <th class="text-center align-middle sticky-col sticky-col-checkbox">
@@ -128,7 +127,7 @@
                     ...
                   </a>
                 </th>
-                <th class="actions text-center" style="width: 100px">
+                <th class="sticky-col sticky-col-actions text-center" style="width: 100px">
                   {{ $t('Actions') }}
                 </th>
               </tr>
@@ -142,9 +141,9 @@
                   'sticky-col sticky-col-data': field.code === frozenColumnCode,
                 }">
                   <!-- status字段使用颜色标识 -->
-                  <span v-if="field.code === 'status'" :class="getStatusClass(item[field.code])">
-                    {{ item[field.code] }}
-                  </span>
+                  <template v-if="field.code === 'status'">
+                    <StatusBadge :status="item[field.code]" />
+                  </template>
                   <!-- 其他字段:使用 {field}_display 显示值 -->
                   <template v-else>
                     {{ item[`${field.code}_display`] !== null && item[`${field.code}_display`] !== undefined ?
@@ -152,7 +151,7 @@
                   </template>
                 </td>
                 <td v-if="tableFields.length > displayNumber">...</td>
-                <td class="actions text-center">
+                <td class="sticky-col sticky-col-actions text-center">
                   <!-- 审批记录 -->
                   <a href="javascript:;" @click="getApprovalHistory(item.id)" :title="$t('Approval History')">
                     <i class="bi bi-clipboard2-check"></i>
@@ -285,6 +284,7 @@ import 'vue-select/dist/vue-select.css';
 import AppSearch from './Search.vue';
 import TreeTable from '@/components/TreeTable.vue';
 import CategoryTree from '@/components/CategoryTree.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { formatFieldValue, preloadFieldDictionaries } from '@/utils/fieldFormatter';
 
 const isImportModalVisible = ref(false);
@@ -597,15 +597,6 @@ const selectAll = () => {
 // Note: formatFieldValue imported from @/utils/fieldFormatter.js
 // Data preprocessing done in getEntityData, template uses {field}_display
 
-// Get status style class
-const getStatusClass = (status) => {
-  const statusMap = {
-    'Normal': 'badge bg-light text-dark',
-    'Deleted': 'badge bg-danger',
-    'Frozen': 'badge bg-warning text-dark',
-  };
-  return statusMap[status] || 'badge bg-secondary';
-};
 
 const getApprovalHistory = async id => {
   try {
@@ -1101,85 +1092,4 @@ const uncheckAllColumns = () => {
 };
 </script>
 
-<style scoped>
-/*
-  Core fix: Use separate model
-  In collapse mode, sticky element borders are "merged" by the browser rendering mechanism and lost when scrolling.
-  Using separate allows each cell to have independent borders, which move with the cell when sticky.
-*/
-:deep(.table) {
-  border-collapse: separate !important;
-  border-spacing: 0;
-}
-
-/* Manually draw table borders */
-:deep(.table th),
-:deep(.table td) {
-  /*
-    After using separate, Bootstrap's border styles need adjustment.
-    Redefine borders here: draw only right and bottom, forming a loop with table's left and top
-  */
-  border-bottom: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
-  border-top: 0;
-  border-left: 0;
-}
-
-/* Fix missing leftmost border */
-:deep(.table thead tr th:first-child),
-:deep(.table tbody tr td:first-child) {
-  border-left: 1px solid #dee2e6 !important;
-}
-
-/* Fix missing topmost border */
-:deep(.table thead tr:first-child th) {
-  border-top: 1px solid #dee2e6 !important;
-}
-
-/*
-  Fix border-radius issue (Bootstrap .table-bordered might have rounded corners, square display is neater here)
-*/
-:deep(.table-bordered) {
-  border: 0;
-  /* Remove table's own border, use cell drawing instead */
-}
-
-/* Frozen column styles */
-/* Frozen column styles (including left checkbox/data and right actions) */
-.sticky-col,
-.actions {
-  position: sticky;
-  z-index: 10;
-}
-
-/*
-  Key: Explicitly set background color for all sticky elements (sticky-col and actions)
-  If not set, default is transparent, text overlaps when scrolling
-*/
-:deep(.table thead tr th.sticky-col),
-:deep(.table thead tr th.actions) {
-  z-index: 11;
-  /* Header level slightly higher to prevent being covered by tbody (theoretically not needed but safe) */
-}
-
-/* Checkbox Column (1st column) */
-.sticky-col-checkbox {
-  left: 0;
-  z-index: 20;
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
-  padding: 0;
-}
-
-/* Data Column (Assuming 2nd column) */
-.sticky-col-data {
-  left: 40px;
-}
-
-/* Actions Column (Rightmost) */
-.actions {
-  right: 0;
-  border-left: 1px solid #dee2e6 !important;
-}
-</style>
+<style scoped></style>

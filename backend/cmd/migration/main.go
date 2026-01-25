@@ -1,15 +1,18 @@
 package main
 
 import (
-	"piemdm/pkg/config"
+	"piemdm/pkg/configloader"
 	"piemdm/pkg/log"
 )
 
 func main() {
-	conf := config.NewConfig()
-	logger := log.NewLog(conf)
+	v, err := configloader.Load()
+	if err != nil {
+		panic(err)
+	}
+	logger := log.NewLog(v)
 
-	app, cleanup, err := newApp(conf, logger)
+	app, cleanup, err := newApp(v, logger)
 	if err != nil {
 		panic(err)
 	}

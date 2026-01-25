@@ -162,34 +162,38 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-12">
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        v-model="comment"
-                        :placeholder="$t('Comment')"
-                      />
+                  <div class="col-sm-12">
+                    <div class="row" v-if="platform === 'Builtin'">
+                      <div class="col-sm-3">
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          v-model="comment"
+                          :placeholder="$t('Comment')"
+                        />
+                      </div>
+                      <div class="col-sm-9">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary me-1"
+                          @click="confirmApproval()"
+                        >
+                          {{ $t('Approve') }}
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary me-1"
+                          @click="cancelApproval()"
+                        >
+                          {{ $t('Reject') }}
+                        </button>
+                      </div>
                     </div>
-                    <div class="col-sm-9">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary me-1"
-                        @click="confirmApproval()"
-                      >
-                        {{ $t('Approve') }}
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-secondary me-1"
-                        @click="cancelApproval()"
-                      >
-                        {{ $t('Reject') }}
-                      </button>
+                    <div class="alert alert-warning mt-2" role="alert" v-else>
+                      <i class="bi bi-info-circle me-2"></i>
+                      此审批关联外部平台 ({{ platform }})，请前往对应平台进行审批。
                     </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>
@@ -208,20 +212,24 @@
       <table class="table table-sm table-bordered table-hover w-auto mb-0">
         <thead class="thead-light">
           <tr>
-            <th class="text-center">{{ $t('ID') }}</th>
-            <th v-for="field in tableFields">{{ field.Name }}</th>
-            <th>{{ $t('Status') }}</th>
-            <th>{{ $t('CreatedAt') }}</th>
-            <th>{{ $t('UpdatedAt') }}</th>
+            <th v-for="field in tableFields" :key="field.code">
+              {{ field.name }}
+            </th>
           </tr>
         </thead>
         <tbody id="tabletext">
-          <tr v-for="item in tableData">
-            <td>{{ item.id }}</td>
-            <td v-for="field in tableFields">{{ item[field.Code] }}</td>
-            <td>{{ item.status }}</td>
-            <td>{{ formatDate(item.updated_at) }}</td>
-            <td>{{ formatDate(item.created_at) }}</td>
+          <tr v-for="item in tableData" :key="item.id">
+            <td v-for="field in tableFields" :key="field.code">
+              <template v-if="field.code === 'created_at' || field.code === 'updated_at' || field.code === 'deleted_at'">
+                {{ formatDate(item[field.code]) }}
+              </template>
+              <template v-else-if="field.code === 'status'">
+                <StatusBadge :status="item[field.code]" />
+              </template>
+              <template v-else>
+                {{ item[`${field.code}_display`] !== undefined ? item[`${field.code}_display`] : item[field.code] }}
+              </template>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -238,15 +246,18 @@
 
 <script setup>
   import { approveTask, findApproval, rejectTask } from '@/api/approval';
+  import { getApprovalDefByCode } from '@/api/approval_def'; // Import added
   import { getApprovalNodeList } from '@/api/approval_node';
   import { getApprovalTaskList } from '@/api/approval_task';
   import { getEntityList } from '@/api/entity';
-  import { findTableFieldList } from '@/api/table_field';
+  import { findTableFieldList, getTableFields as getTableFieldsAPI } from '@/api/table_field';
   import { AppModal } from '@/components/Modal/modal';
   import AppPagination from '@/components/Pagination.vue';
   import { AppToast } from '@/components/toast.js';
   import AppWorkflow from '@/components/Workflow.vue';
+  import StatusBadge from '@/components/StatusBadge.vue';
   import { formatDate, formatDateDistance, getDateFnsLocale } from '@/utils/language.js';
+  import { formatFieldValue, preloadFieldDictionaries } from '@/utils/fieldFormatter';
   import httpLinkHeader from 'http-link-header';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -268,6 +279,7 @@
   const approvalAction = ref(''); // 'APPROVE' or 'REJECT'
   const approvalNodes = ref([]);
   const approvalTasks = ref([]);
+  const platform = ref('Builtin'); // Default to Builtin
 
   // Calculate task status style
   const taskStatusClass = computed(() => {
@@ -306,6 +318,14 @@
         getTableFields(res.data.EntityCode);
         getApprovalNodes(res.data.ApprovalDefCode);
         getApprovalTasks(res.data.Code);
+
+        // Fetch platform info
+        if (res.data.ApprovalDefCode) {
+          const defRes = await getApprovalDefByCode(res.data.ApprovalDefCode);
+          if (defRes.data) {
+            platform.value = defRes.data.Platform || 'Builtin';
+          }
+        }
       }
     } catch (error) {
       AppToast.show({
@@ -326,8 +346,22 @@
       'entity_id': instance.EntityID,
       'approval_code': instance.Code,
     });
-    if (res) {
-      tableData.value = res.data;
+    if (res && res.data) {
+      // Preload dictionaries
+      await preloadFieldDictionaries(tableFields.value);
+
+      // Process display values
+      tableData.value = await Promise.all(
+        res.data.map(async (item) => {
+          const processedItem = { ...item };
+          for (const field of tableFields.value) {
+            const val = item[field.code];
+            processedItem[`${field.code}_display`] = await formatFieldValue(val, field);
+          }
+          return processedItem;
+        })
+      );
+
       const links = httpLinkHeader.parse(res.headers.link).refs;
       links.forEach(link => {
         if (['last'].includes(link.rel)) {
@@ -340,11 +374,32 @@
 
   // get table fields
   const getTableFields = async tableCode => {
-    const res = await findTableFieldList({
-      table_code: tableCode,
-    });
-    if (res) {
-      tableFields.value = res.data;
+    try {
+      // Use _draft suffix to get all draft related fields including system fields
+      const res = await getTableFieldsAPI({
+        table_code: tableCode + '_draft',
+      });
+      if (res && res.data) {
+        // Map to uniform structure, including lowercase code for data access
+        tableFields.value = res.data.map(f => ({
+          code: f.code,
+          name: f.name,
+          Name: f.name, // Keep Name for compatibility
+          Code: f.code, // Keep Code for compatibility
+          is_system: f.is_system,
+          field_type: f.field_type,
+          options: f.options,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch field list:', error);
+      // Fallback
+      const res = await findTableFieldList({
+        table_code: tableCode,
+      });
+      if (res) {
+        tableFields.value = res.data;
+      }
     }
   };
 

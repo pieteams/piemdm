@@ -16,24 +16,6 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-// CreateApi
-// DeleteApi
-// GetAPIInfoList
-// GetAllApis
-// GetApiById
-// UpdateApi
-// DeleteApisByIds
-// FreshCasbin
-
-// CreateAuthority
-// CopyAuthority
-// UpdateAuthority
-// DeleteAuthority
-// GetAuthorityInfoList
-// GetAuthorityInfo
-// SetDataAuthority
-// SetMenuAuthority
-// findChildrenAuthority
 type EntityService interface {
 	// Base CRUD
 	Get(c *gin.Context, tableCode string, id uint) (map[string]any, error)
@@ -146,7 +128,6 @@ func (s *entityService) checkPermission(c *gin.Context, tableCode string) error 
 }
 
 func (s *entityService) Get(c *gin.Context, tableCode string, id uint) (map[string]any, error) {
-	// fmt.Printf("\nentityService tableCode: %#v\n\n", tableCode)
 
 	entityMap, err := s.entityRepository.FindOne(tableCode, id)
 	if err != nil {
@@ -193,8 +174,14 @@ func (s *entityService) CreateDraft(c *gin.Context, tableCode, reason string, en
 	if err := s.checkPermission(c, tableCode); err != nil {
 		return err
 	}
-	// 验证唯一索引约束 (有审批流程)
-	if err := s.validateUniqueConstraints(c, "Create", tableCode, entityMap, true); err != nil {
+
+	// 设置操作类型,供 generateAutocodes 判断
+	if _, ok := entityMap["operation"]; !ok {
+		entityMap["operation"] = "Create"
+	}
+
+	// 生成自动编码字段
+	if err := s.generateAutocodes(c, tableCode, entityMap); err != nil {
 		return err
 	}
 	return s.approvalService.CreateDraftWithApproval(c, tableCode, reason, entityMap)
@@ -503,6 +490,25 @@ func (s *entityService) importDirect(c *gin.Context, tableCode, reason, operatio
 		return err
 	}
 
+	// Fetch field definitions for type mapping
+	fieldWhere := map[string]any{"table_code": tableCode}
+	tFields, err := s.tableFieldService.Find("code,field_type,type", fieldWhere)
+	if err != nil {
+		s.logger.Error("importDirect: fetch fields failed", "err", err)
+		return err
+	}
+	fieldTypeMap := make(map[string]struct {
+		uiType string
+		dbType string
+	})
+
+	for _, f := range tFields {
+		fieldTypeMap[f.Code] = struct{ uiType, dbType string }{
+			uiType: f.FieldType,
+			dbType: f.Type,
+		}
+	}
+
 	// 打开 Excel 文件
 	xlsx, err := excelize.OpenReader(r)
 	if err != nil {
@@ -524,16 +530,52 @@ func (s *entityService) importDirect(c *gin.Context, tableCode, reason, operatio
 				if index >= len(fields) {
 					break
 				}
+				fieldCode := fields[index]
+
 				// 处理 ID 字段
-				if fields[index] == "ID" {
-					if num, err := strconv.Atoi(cell); err != nil {
-						entityMap[fields[index]] = cell
-					} else {
-						entityMap[fields[index]] = num
+				if fieldCode == "ID" || fieldCode == "id" {
+					if num, err := strconv.Atoi(cell); err == nil {
+						entityMap[fieldCode] = num
+						continue
 					}
-				} else {
-					entityMap[fields[index]] = cell
 				}
+
+				// Handle empty strings based on field type
+				if cell == "" {
+					if types, ok := fieldTypeMap[fieldCode]; ok {
+						uiType := strings.ToLower(types.uiType)
+						dbType := strings.ToLower(types.dbType)
+
+						isDateOrNum := false
+						if strings.Contains(uiType, "date") ||
+							strings.Contains(uiType, "time") ||
+							strings.Contains(uiType, "int") ||
+							strings.Contains(uiType, "number") ||
+							strings.Contains(uiType, "decimal") ||
+							strings.Contains(uiType, "float") ||
+							strings.Contains(uiType, "double") {
+							isDateOrNum = true
+						}
+
+						if !isDateOrNum {
+							if strings.Contains(dbType, "date") ||
+								strings.Contains(dbType, "time") ||
+								strings.Contains(dbType, "int") ||
+								strings.Contains(dbType, "decimal") ||
+								strings.Contains(dbType, "float") ||
+								strings.Contains(dbType, "double") {
+								isDateOrNum = true
+							}
+						}
+
+						if isDateOrNum {
+							entityMap[fieldCode] = nil
+							continue
+						}
+					}
+				}
+
+				entityMap[fieldCode] = cell
 			}
 
 			// 根据操作类型选择创建或更新
@@ -544,9 +586,16 @@ func (s *entityService) importDirect(c *gin.Context, tableCode, reason, operatio
 				entityMap["operation"] = operation
 				entityMap["action"] = operationInfo["action"]
 				entityMap["status"] = operationInfo["status"]
+				// 生成 entity global id
+				entityMap["entity_id"] = gid
+				entityMap["created_by"] = c.GetString("user_name") // Assuming user_name is the creator
 				entityMap["send_status"] = 0
-				entityMap["created_by"] = c.GetString("user_name")
 				entityMap["updated_by"] = c.GetString("user_name")
+
+				// 生成自动编码
+				if err := s.generateAutocodes(c, tableCode, entityMap); err != nil {
+					return err
+				}
 
 				if err := s.entityRepository.Create(c, tableCode, entityMap); err != nil {
 					return err
@@ -949,6 +998,11 @@ func (s *entityService) calculateTreeFields(c *gin.Context, tableCode string, en
 	return nil
 }
 
+// generateAutocodes 为 autocode 类型的字段生成编码
+func (s *entityService) generateAutocodes(c *gin.Context, tableCode string, entityMap map[string]any) error {
+	return s.autocodeService.GenerateOrRestoreAutocodes(c, tableCode, entityMap, s.tableFieldService, s.entityRepository, s.logger)
+}
+
 func (s *entityService) Create(c *gin.Context, tableCode string, entity any) error {
 	if err := s.checkPermission(c, tableCode); err != nil {
 		return err
@@ -982,27 +1036,8 @@ func (s *entityService) Create(c *gin.Context, tableCode string, entity any) err
 		}
 
 		// 生成自动编码字段
-		fieldWhere := map[string]any{
-			"table_code": tableCode,
-			"field_type": "autocode",
-			"status":     "Normal",
-		}
-		autocodeFields, err := s.tableFieldService.Find("code,options", fieldWhere)
-		if err != nil {
-			s.logger.Error("获取自动编码字段失败", "error", err)
-		} else {
-			// 为每个 autocode 字段生成编码
-			for _, field := range autocodeFields {
-				if field.Options != nil && len(field.Options.Patterns) > 0 {
-					code, err := s.autocodeService.GenerateCode(tableCode, field.Code, field.Options.Patterns, entityMap)
-					if err != nil {
-						s.logger.Error("生成自动编码失败", "field", field.Code, "error", err)
-						return fmt.Errorf("生成自动编码失败: %v", err)
-					}
-					entityMap[field.Code] = code
-					s.logger.Info("生成自动编码", "field", field.Code, "code", code)
-				}
-			}
+		if err := s.generateAutocodes(c, tableCode, entityMap); err != nil {
+			return err
 		}
 
 		// 验证唯一索引约束 (无审批流程)

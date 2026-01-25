@@ -3,6 +3,7 @@ package router
 import (
 	"piemdm/internal/handler"
 	"piemdm/internal/repository"
+	"piemdm/internal/service"
 	"piemdm/pkg/jwt"
 	"piemdm/pkg/log"
 
@@ -18,6 +19,7 @@ type Handlers struct {
 	Enforcer           *casbin.Enforcer
 	Entity             handler.EntityHandler
 	Approval           handler.ApprovalHandler
+	ApprovalService    service.ApprovalService
 	ApprovalDefinition handler.ApprovalDefinitionHandler
 	ApprovalNode       handler.ApprovalNodeHandler
 	ApprovalTask       handler.ApprovalTaskHandler

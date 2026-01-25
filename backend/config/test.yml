@@ -61,6 +61,7 @@ notification:
     from: "your_email@example.com"
     from_name: "PieMDM System"
     use_tls: true
+    test_recipient: "your_test_recipient_email@example.com"
 
   # SMS Service Configuration
   sms:
@@ -107,7 +108,6 @@ integrations:
     enabled: false
     app_id: "your-feishu-app-id"
     app_secret: "your-feishu-app-secret"
-    webhook_url: "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-key"
 
   # DingTalk Configuration
   dingtalk:

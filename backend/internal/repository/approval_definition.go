@@ -41,6 +41,7 @@ type ApprovalDefinitionRepository interface {
 	// 统计查询
 	CountByStatus(status string) (int64, error)
 	CountByEntityCode(entityCode string) (int64, error)
+	FindActiveFeishuCodes() ([]string, error)
 }
 
 type approvalDefinitionRepository struct {
@@ -226,4 +227,14 @@ func (r *approvalDefinitionRepository) CountByEntityCode(entityCode string) (int
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *approvalDefinitionRepository) FindActiveFeishuCodes() ([]string, error) {
+	var codes []string
+	if err := r.db.Model(&model.ApprovalDefinition{}).
+		Where("platform = ? AND status = ? AND deleted_at IS NULL", "Feishu", model.ApprovalDefStatusNormal).
+		Pluck("code", &codes).Error; err != nil {
+		return nil, err
+	}
+	return codes, nil
 }

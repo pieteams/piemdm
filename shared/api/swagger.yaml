@@ -128,6 +128,9 @@ definitions:
         description: 关联实体编码
         maxLength: 64
         type: string
+      externalInstanceID:
+        description: 外部审批实例ID
+        type: string
       formData:
         description: 表单数据
         type: string
@@ -324,6 +327,9 @@ definitions:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
+      externalTaskID:
+        description: 外部审批任务ID
+        type: string
       id:
         type: integer
       nodeCode:
@@ -1159,9 +1165,7 @@ definitions:
         maxLength: 8
         type: string
       status:
-        description: |-
-          状态：Normal 正常 Frozen 已冻结 Deleted 已删除
-          状态：Normal 正常 Frozen 已冻结 Deleted 已删除
+        description: 状态：Normal 正常 Frozen 已冻结 Deleted 已删除
         type: string
       superiorUsername:
         description: 上级用户名
@@ -4266,26 +4270,6 @@ paths:
       summary: 创建审批定义新版本
       tags:
       - 审批定义
-  /api/v1/approval-defs/code/{code}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 审批定义编码
-        in: path
-        name: code
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/piemdm_internal_model.ApprovalDefinition'
-      summary: 根据编码获取审批定义
-      tags:
-      - 审批定义
   /api/v1/approval-defs/code/{code}/versions:
     get:
       consumes:
@@ -4350,6 +4334,28 @@ paths:
               $ref: '#/definitions/piemdm_internal_model.ApprovalDefinition'
             type: array
       summary: 根据实体编码获取激活的审批定义列表
+      tags:
+      - 审批定义
+  /api/v1/approval-defs/sync-feishu:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 审批定义编码 (飞书中的 Approval Code)
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 同步飞书审批定义 (表单)
       tags:
       - 审批定义
   /api/v1/approval-nodes:
@@ -5011,6 +5017,26 @@ paths:
       summary: 获取逾期任务列表
       tags:
       - 审批任务
+  /api/v1/approval_defs/code/{code}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 审批定义编码
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/piemdm_internal_model.ApprovalDefinition'
+      summary: 根据编码获取审批定义
+      tags:
+      - 审批定义
   /api/v1/approvals:
     get:
       consumes:

@@ -1,4 +1,4 @@
-package config
+package configloader
 
 import (
 	"flag"
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func NewConfig() *viper.Viper {
+func Load() (*viper.Viper, error) {
 	envConf := os.Getenv("APP_CONF")
 	if envConf == "" {
 		// 检查是否在测试环境下运行
@@ -39,7 +39,7 @@ func isTest() bool {
 		strings.Contains(os.Args[0], "/_go_build_")
 }
 
-func getConfig(path string) *viper.Viper {
+func getConfig(path string) (*viper.Viper, error) {
 	conf := viper.New()
 	if path != "" {
 		conf.SetConfigFile(path)
@@ -50,8 +50,8 @@ func getConfig(path string) *viper.Viper {
 	if path != "" {
 		err := conf.ReadInConfig()
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
-	return conf
+	return conf, nil
 }

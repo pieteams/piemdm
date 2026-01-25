@@ -8,7 +8,7 @@ import (
 func BuildCondition(where map[string]any) (whereSql string,
 	values []any, err error,
 ) {
-	// fmt.Printf("BuildCondition: %#v", where)
+
 	for key, value := range where {
 		conditionKey := strings.Split(key, " ")
 		if whereSql != "" {

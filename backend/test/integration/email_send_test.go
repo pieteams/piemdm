@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"piemdm/pkg/config"
+	"piemdm/pkg/configloader"
 	"piemdm/pkg/notification"
 )
 
@@ -26,18 +26,28 @@ func TestEmailSend(t *testing.T) {
 	os.Setenv("APP_CONF", configPath)
 
 	// 从配置文件加载邮件配置
-	cfg := config.NewConfig()
+	cfg, err := configloader.Load()
+	if err != nil {
+		t.Fatalf("加载配置失败: %v", err)
+	}
 
-	// 创建邮件配置 - 使用QQ邮箱的正确配置
+	// 创建邮件配置
 	emailConfig := &notification.EmailConfig{
 		Enabled:  cfg.GetBool("notification.email.enabled"),
-		Host:     "smtp.qq.com",
-		Port:     465, // QQ邮箱使用465端口
+		Host:     cfg.GetString("notification.email.host"),
+		Port:     cfg.GetInt("notification.email.port"),
 		Username: cfg.GetString("notification.email.username"),
 		Password: cfg.GetString("notification.email.password"),
 		From:     cfg.GetString("notification.email.from"),
 		FromName: cfg.GetString("notification.email.from_name"),
-		UseTLS:   true,
+		UseTLS:   cfg.GetBool("notification.email.use_tls"),
+	}
+
+	// 确定测试收件人
+	testRecipient := cfg.GetString("notification.email.test_recipient")
+	if testRecipient == "" {
+		testRecipient = emailConfig.From
+		t.Logf("未配置 notification.email.test_recipient，将使用发件人地址作为收件人: %s", testRecipient)
 	}
 
 	// 创建邮件提供者
@@ -52,7 +62,7 @@ func TestEmailSend(t *testing.T) {
 
 	// 创建测试消息
 	message := &notification.NotificationMessage{
-		To:          []string{"jasen215@gmail.com"}, // 请替换为测试邮箱
+		To:          []string{testRecipient},
 		Subject:     "【PieMDM测试】邮件发送测试",
 		Content:     "这是一封测试邮件，用于验证PieMDM系统的邮件发送功能。\n\n发送时间：" + time.Now().Format("2006-01-02 15:04:05"),
 		ContentType: "text/plain",
@@ -93,9 +103,12 @@ func TestEmailSendWithHTML(t *testing.T) {
 	os.Setenv("APP_CONF", configPath)
 
 	// 从配置文件加载邮件配置
-	cfg := config.NewConfig()
+	cfg, err := configloader.Load()
+	if err != nil {
+		t.Fatalf("加载配置失败: %v", err)
+	}
 
-	// 创建邮件配置 - 使用163邮箱作为测试
+	// 创建邮件配置
 	emailConfig := &notification.EmailConfig{
 		Enabled:  cfg.GetBool("notification.email.enabled"),
 		Host:     cfg.GetString("notification.email.host"),
@@ -106,6 +119,13 @@ func TestEmailSendWithHTML(t *testing.T) {
 		FromName: cfg.GetString("notification.email.from_name"),
 		UseTLS:   cfg.GetBool("notification.email.use_tls"),
 	}
+
+	// 确定测试收件人
+	testRecipient := cfg.GetString("notification.email.test_recipient")
+	if testRecipient == "" {
+		testRecipient = emailConfig.From
+	}
+
 	// 创建邮件提供者
 	provider := notification.NewEmailProvider(emailConfig, logger)
 
@@ -130,7 +150,7 @@ func TestEmailSendWithHTML(t *testing.T) {
 </html>`
 
 	message := &notification.NotificationMessage{
-		To:          []string{"jasen215@gmail.com"},
+		To:          []string{testRecipient},
 		Subject:     "【PieMDM测试】HTML格式邮件",
 		Content:     htmlContent,
 		ContentType: "html",
@@ -165,9 +185,12 @@ func TestNotificationService(t *testing.T) {
 	os.Setenv("APP_CONF", configPath)
 
 	// 从配置文件加载邮件配置
-	cfg := config.NewConfig()
+	cfg, err := configloader.Load()
+	if err != nil {
+		t.Fatalf("加载配置失败: %v", err)
+	}
 
-	// 创建邮件配置 - 使用Gmail作为测试
+	// 创建邮件配置
 	emailConfig := &notification.EmailConfig{
 		Enabled:  cfg.GetBool("notification.email.enabled"),
 		Host:     cfg.GetString("notification.email.host"),
@@ -177,6 +200,12 @@ func TestNotificationService(t *testing.T) {
 		From:     cfg.GetString("notification.email.from"),
 		FromName: cfg.GetString("notification.email.from_name"),
 		UseTLS:   cfg.GetBool("notification.email.use_tls"),
+	}
+
+	// 确定测试收件人
+	testRecipient := cfg.GetString("notification.email.test_recipient")
+	if testRecipient == "" {
+		testRecipient = emailConfig.From
 	}
 
 	// 创建通知配置
@@ -194,7 +223,7 @@ func TestNotificationService(t *testing.T) {
 
 	// 创建测试消息
 	message := &notification.NotificationMessage{
-		To:          []string{"jasen215@gmail.com"},
+		To:          []string{testRecipient},
 		Subject:     "【PieMDM通知】审批流程测试",
 		Content:     "您的审批申请已提交，请及时处理。\n\n申请时间：" + time.Now().Format("2006-01-02 15:04:05"),
 		ContentType: "text/plain",
@@ -229,7 +258,10 @@ func TestEmailConfigValidation(t *testing.T) {
 	os.Setenv("APP_CONF", configPath)
 
 	// 从配置文件加载邮件配置
-	cfg := config.NewConfig()
+	cfg, err := configloader.Load()
+	if err != nil {
+		t.Fatalf("加载配置失败: %v", err)
+	}
 
 	// 测试有效配置
 	validConfig := &notification.EmailConfig{
@@ -244,7 +276,7 @@ func TestEmailConfigValidation(t *testing.T) {
 	}
 
 	provider := notification.NewEmailProvider(validConfig, logger)
-	err := provider.ValidateConfig()
+	err = provider.ValidateConfig()
 	if err != nil {
 		t.Logf("有效配置验证失败: %v", err)
 	} else {

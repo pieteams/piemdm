@@ -1,99 +1,127 @@
 /**
- * Sticky Table Styles
- *
- * 用于实现表格的冻结列效果（左侧 checkbox 列和右侧 actions 列）
- * 核心：使用 border-collapse: separate 模式，解决 sticky 元素边框丢失问题
+ * ========================================
+ * Sticky Table - Stable Version
+ * 适配：
+ * - Bootstrap table / table-hover / table-striped
+ * - 左 checkbox 列 + 右 actions 列
+ * - hover / zebra / 滚动 不透明、不闪
+ * ========================================
  */
 
-/*
-  核心修复: 使用 separate 模型
-  在 collapse 模式下，sticky 元素的边框会被浏览器渲染机制"合并"导致滚动时丢失。
-  改用 separate 后，每个单元格拥有独立边框，sticky 时边框会随单元格移动。
-*/
+/* ----------------------------------------
+ * Table Base
+ * ---------------------------------------- */
 .sticky-table {
   border-collapse: separate !important;
   border-spacing: 0;
 }
 
-/* 手动绘制表格边框 */
+/* 手动绘制边框（sticky 必需） */
 .sticky-table th,
 .sticky-table td {
-  /*
-    使用 separate 后，Bootstrap 的边框样式需要调整。
-    这里重新定义边框：只画右边和下边，配合 table 的左边和上边形成闭环
-  */
   border-bottom: 1px solid #dee2e6 !important;
   border-right: 1px solid #dee2e6 !important;
   border-top: 0 !important;
   border-left: 0 !important;
 }
 
-/* 修复最左侧边框缺失的问题 */
-.sticky-table thead tr th:first-child,
-.sticky-table tbody tr td:first-child {
+/* 左侧边框 */
+.sticky-table thead th:first-child,
+.sticky-table tbody td:first-child {
   border-left: 1px solid #dee2e6 !important;
 }
 
-/* 修复最顶部边框缺失的问题 */
+/* 顶部边框 */
 .sticky-table thead tr:first-child th {
   border-top: 1px solid #dee2e6 !important;
 }
 
-/*
-  修复圆角问题 (Bootstrap .table-bordered 可能会带圆角，这里直角显示更整齐)
-*/
+/* table-bordered 圆角修复 */
 .sticky-table.table-bordered {
   border: 0;
-  /* 去掉 table 自身的边框，改由单元格绘制 */
 }
 
-/* 冻结列基础样式 */
+/* ----------------------------------------
+ * Sticky Column Common
+ * ---------------------------------------- */
 .sticky-col {
   position: sticky;
   z-index: 10;
+  background-color: #fff;
+  /* 必须显式声明 */
 }
 
-/* 表头 sticky 列层级稍高，防止被 tbody 遮挡 */
-.sticky-table thead tr th.sticky-col {
-  z-index: 11;
-}
-
-/* Checkbox 列 (左侧第1列) */
-.sticky-col-checkbox {
-  left: -4px;
+/* 表头 sticky */
+.sticky-table thead th.sticky-col {
   z-index: 20;
+  background-color: #f8f9fa;
+}
+
+/* ----------------------------------------
+ * Zebra Striping（关键）
+ * ---------------------------------------- */
+.table-striped>tbody>tr:nth-of-type(odd)>td {
+  background-color: #f2f2f2;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd)>td.sticky-col,
+.table-striped>tbody>tr:nth-of-type(odd)>td.sticky-col-actions {
+  background-color: #f2f2f2 !important;
+}
+
+/* ----------------------------------------
+ * Hover（核心修复）
+ * ---------------------------------------- */
+.table-hover>tbody>tr:hover>td {
+  background-color: #ececec;
+}
+
+/* sticky 列 hover 强制覆盖 */
+.table-hover>tbody>tr:hover>td.sticky-col,
+.table-hover>tbody>tr:hover>td.sticky-col-actions {
+  background-color: #ececec !important;
+}
+
+/* ----------------------------------------
+ * Checkbox Column (Left)
+ * ---------------------------------------- */
+.sticky-col-checkbox {
+  left: 0;
+  z-index: 30;
   width: 40px;
   min-width: 40px;
   max-width: 40px;
 }
 
-/* 数据列 (左侧第2列，可选冻结) */
+/* 紧随 checkbox 的数据列 */
 .sticky-col-data {
   left: 40px;
+  z-index: 20;
 }
 
-/* Actions 列 (右侧) */
-.sticky-table .sticky-col-actions {
-  right: -4px;
+/* ----------------------------------------
+ * Actions Column (Right)
+ * ---------------------------------------- */
+.sticky-col-actions {
+  right: 0;
+  z-index: 30;
+  background-color: #fff;
   border-left: 1px solid #dee2e6 !important;
-  /* 操作列单元格内边距 */
-  padding-left: 5px !important;
-  padding-right: 5px !important;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
-/* 操作按钮统一间隔 */
-/* 模拟 class="mx-2"：首个按钮左右间隔 0.5rem */
-.sticky-table .sticky-col-actions a:first-child {
-  margin-left: 0.5rem;
+/* 表头 actions */
+.sticky-table thead th.sticky-col-actions {
+  z-index: 40;
+  background-color: #f8f9fa;
+}
+
+/* 操作按钮间距 */
+.sticky-col-actions a {
   margin-right: 0.5rem;
 }
 
-/* 模拟 class="me-2"：非首个按钮右侧间隔 0.5rem */
-.sticky-table .sticky-col-actions a:not(:first-child) {
-  margin-right: 0.5rem;
-}
-
-/* 表头 actions 列层级 */
-.sticky-table thead tr th.sticky-col-actions {
-  z-index: 11;
+.sticky-col-actions a:last-child {
+  margin-right: 0;
 }

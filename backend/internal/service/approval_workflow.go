@@ -15,7 +15,7 @@ type ApprovalWorkflowService interface {
 	GetOperationInfo(operation string, operationInfo *map[string]string) error
 
 	// 审批流程创建
-	CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string) error
+	CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string, formData map[string]any) error
 	CreateApprovalInstance(c *gin.Context, approvalDefinition *model.ApprovalDefinition, approvalNodes []*model.ApprovalNode, approvalInfo map[string]string) error
 
 	// 任务创建

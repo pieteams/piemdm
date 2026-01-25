@@ -37,17 +37,17 @@ func (m *MockApprovalWorkflowService) EXPECT() *MockApprovalWorkflowServiceMockR
 }
 
 // CreateApprovalFlow mocks base method.
-func (m *MockApprovalWorkflowService) CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string) error {
+func (m *MockApprovalWorkflowService) CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string, formData map[string]any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateApprovalFlow", c, tableCode, approvalInfo)
+	ret := m.ctrl.Call(m, "CreateApprovalFlow", c, tableCode, approvalInfo, formData)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateApprovalFlow indicates an expected call of CreateApprovalFlow.
-func (mr *MockApprovalWorkflowServiceMockRecorder) CreateApprovalFlow(c, tableCode, approvalInfo interface{}) *gomock.Call {
+func (mr *MockApprovalWorkflowServiceMockRecorder) CreateApprovalFlow(c, tableCode, approvalInfo, formData interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApprovalFlow", reflect.TypeOf((*MockApprovalWorkflowService)(nil).CreateApprovalFlow), c, tableCode, approvalInfo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApprovalFlow", reflect.TypeOf((*MockApprovalWorkflowService)(nil).CreateApprovalFlow), c, tableCode, approvalInfo, formData)
 }
 
 // CreateApprovalInstance mocks base method.

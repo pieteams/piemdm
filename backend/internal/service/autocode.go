@@ -3,13 +3,19 @@ package service
 import (
 	"fmt"
 	"piemdm/internal/model"
+	"piemdm/internal/repository"
+	"piemdm/pkg/log"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AutocodeService interface {
 	// 业务方法
 	GenerateCode(tableCode, fieldCode string, patterns []model.SequencePattern, entityMap map[string]any) (string, error)
+	GenerateOrRestoreAutocodes(c *gin.Context, tableCode string, entityMap map[string]any, tableFieldService TableFieldService, entityRepository repository.EntityRepository, logger *log.Logger) error
 }
 
 type autocodeService struct {
@@ -103,6 +109,78 @@ func (s *autocodeService) GenerateCode(tableCode, fieldCode string, patterns []m
 	}
 
 	return result, nil
+}
+
+// GenerateOrRestoreAutocodes 生成或恢复自动编码字段
+// 用于统一处理 entity 和 approval service 的自动编码逻辑
+func (s *autocodeService) GenerateOrRestoreAutocodes(c *gin.Context, tableCode string, entityMap map[string]any, tableFieldService TableFieldService, entityRepository repository.EntityRepository, logger *log.Logger) error {
+	fieldWhere := map[string]any{
+		"table_code": tableCode,
+		"field_type": "autocode",
+		"status":     "Normal",
+	}
+	autocodeFields, err := tableFieldService.Find("code,options", fieldWhere)
+	if err != nil {
+		logger.Error("获取自动编码字段失败", "error", err)
+		return nil // 允许继续,但不报错
+	}
+
+	// 检查操作类型,如果是编辑操作则恢复原值
+	if operation, ok := entityMap["operation"]; ok {
+		opStr := fmt.Sprintf("%v", operation)
+		if opStr == "Update" || opStr == "BatchUpdate" {
+			logger.Info("检测到编辑操作,恢复自动编码字段原值", "operation", operation)
+
+			// 获取 entity_id 并查询原记录
+			if entityID, ok := entityMap["entity_id"]; ok && entityID != nil && entityID != "" {
+				if idUint, err := strconv.ParseUint(fmt.Sprintf("%v", entityID), 10, 64); err == nil && idUint > 0 {
+					existing, err := entityRepository.FindOne(tableCode, uint(idUint))
+					if err == nil && existing != nil {
+						// 只恢复自动编码字段
+						for _, field := range autocodeFields {
+							if existingVal, ok := existing[field.Code]; ok {
+								entityMap[field.Code] = existingVal
+								logger.Info("恢复自动编码字段", "code", field.Code, "val", existingVal)
+							}
+						}
+					} else {
+						logger.Warn("查询原记录失败,无法恢复自动编码字段", "entity_id", entityID, "error", err)
+					}
+				}
+			}
+			return nil
+		}
+	}
+
+	// 兜底检查 entity_id 是否存在于数据库
+	if entityID, ok := entityMap["entity_id"]; ok && entityID != nil && entityID != "" {
+		if idUint, err := strconv.ParseUint(fmt.Sprintf("%v", entityID), 10, 64); err == nil && idUint > 0 {
+			_, err := entityRepository.FindOne(tableCode, uint(idUint))
+			if err == nil {
+				logger.Info("检测到已存在的记录,跳过自动编码生成", "entity_id", entityID)
+				return nil
+			}
+		}
+	}
+
+	for _, field := range autocodeFields {
+		// 如果字段已有值且不为空,则跳过生成(除非业务要求强制覆盖)
+		if val, ok := entityMap[field.Code]; ok && val != "" && val != nil {
+			logger.Info("字段已有值,跳过生成", "code", field.Code, "val", val)
+			continue
+		}
+
+		if field.Options != nil && len(field.Options.Patterns) > 0 {
+			code, err := s.GenerateCode(tableCode, field.Code, field.Options.Patterns, entityMap)
+			if err != nil {
+				logger.Error("生成自动编码失败", "field", field.Code, "error", err)
+				return fmt.Errorf("生成自动编码失败: %v", err)
+			}
+			entityMap[field.Code] = code
+			logger.Info("生成自动编码成功", "field", field.Code, "code", code)
+		}
+	}
+	return nil
 }
 
 // getCycleValue 根据周期类型获取周期值

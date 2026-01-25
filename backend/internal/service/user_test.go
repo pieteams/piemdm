@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"piemdm/internal/model"
-	"piemdm/internal/transport/request"
 	"piemdm/internal/service"
-	"piemdm/pkg/config"
+	"piemdm/internal/transport/request"
+	"piemdm/pkg/configloader"
 	"piemdm/pkg/helper/sid"
 	jwt2 "piemdm/pkg/jwt"
 	"piemdm/pkg/log"
@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 		_ = os.Setenv("APP_CONF", configPath)
 	}
 
-	conf := config.NewConfig()
+	conf, _ := configloader.Load()
 	logger = log.NewLog(conf)
 	logger.Info("begin")
 	jwtSrv = jwt2.NewJwt(conf)

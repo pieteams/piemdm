@@ -197,7 +197,7 @@
 </template>
 
 <script setup>
-  import { findApprovalDef } from '@/api/approval_def';
+  import { getApprovalDef } from '@/api/approval_def';
   import { onMounted, ref } from 'vue';
   import { useRouter } from 'vue-router';
 
@@ -215,7 +215,7 @@
   // 查询
   const getApprovalDefInfo = async () => {
     const params = router.currentRoute.value.query;
-    const res = await findApprovalDef({
+    const res = await getApprovalDef({
       id: params.id,
     });
     dataInfo.value = res.data;

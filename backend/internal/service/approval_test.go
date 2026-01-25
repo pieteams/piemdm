@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http/httptest"
@@ -33,12 +34,12 @@ func setupApprovalService(t *testing.T) (service.ApprovalService, *mock_reposito
 
 	baseService := service.NewService(logger, &sid.Sid{}, &jwt.JWT{})
 
-	approvalService := service.NewApprovalService(baseService, mockApprovalRepo, nil, nil, nil, nil, nil, nil, nil, nil, mockDefRepo, nil, mockNodeRepo, nil, mockTaskRepo, nil, nil)
+	approvalService := service.NewApprovalService(baseService, mockApprovalRepo, nil, nil, nil, nil, nil, nil, nil, nil, mockDefRepo, nil, mockNodeRepo, nil, mockTaskRepo, nil, nil, nil, nil)
 	return approvalService, mockApprovalRepo, mockDefRepo, mockNodeRepo, mockTaskRepo, ctrl
 }
 
 func TestApprovalService_Create(t *testing.T) {
-	approvalService, mockApprovalRepo, _, _, _, ctrl := setupApprovalService(t)
+	approvalService, mockApprovalRepo, mockDefRepo, _, _, ctrl := setupApprovalService(t)
 	defer ctrl.Finish()
 
 	now := time.Now()
@@ -60,6 +61,10 @@ func TestApprovalService_Create(t *testing.T) {
 	}
 
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	// Mock approvalDefinitionRepository.First - Create 方法会调用此方法检查是否为飞书审批
+	mockDefRepo.EXPECT().First(map[string]any{"code": "TEST_DEF_001"}).Return(nil, fmt.Errorf("not found"))
+
 	mockApprovalRepo.EXPECT().Create(c, approval).Return(nil)
 
 	err := approvalService.Create(c, approval)

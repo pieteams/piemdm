@@ -6,8 +6,12 @@ package mock_service
 
 import (
 	model "piemdm/internal/model"
+	repository "piemdm/internal/repository"
+	service "piemdm/internal/service"
+	log "piemdm/pkg/log"
 	reflect "reflect"
 
+	gin "github.com/gin-gonic/gin"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -47,4 +51,18 @@ func (m *MockAutocodeService) GenerateCode(tableCode, fieldCode string, patterns
 func (mr *MockAutocodeServiceMockRecorder) GenerateCode(tableCode, fieldCode, patterns, entityMap interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateCode", reflect.TypeOf((*MockAutocodeService)(nil).GenerateCode), tableCode, fieldCode, patterns, entityMap)
+}
+
+// GenerateOrRestoreAutocodes mocks base method.
+func (m *MockAutocodeService) GenerateOrRestoreAutocodes(c *gin.Context, tableCode string, entityMap map[string]any, tableFieldService service.TableFieldService, entityRepository repository.EntityRepository, logger *log.Logger) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateOrRestoreAutocodes", c, tableCode, entityMap, tableFieldService, entityRepository, logger)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GenerateOrRestoreAutocodes indicates an expected call of GenerateOrRestoreAutocodes.
+func (mr *MockAutocodeServiceMockRecorder) GenerateOrRestoreAutocodes(c, tableCode, entityMap, tableFieldService, entityRepository, logger interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOrRestoreAutocodes", reflect.TypeOf((*MockAutocodeService)(nil).GenerateOrRestoreAutocodes), c, tableCode, entityMap, tableFieldService, entityRepository, logger)
 }

@@ -3539,37 +3539,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/approval-defs/code/{code}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "审批定义"
-                ],
-                "summary": "根据编码获取审批定义",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "审批定义编码",
-                        "name": "code",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/piemdm_internal_model.ApprovalDefinition"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/approval-defs/code/{code}/versions": {
             "get": {
                 "consumes": [
@@ -3666,6 +3635,40 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/piemdm_internal_model.ApprovalDefinition"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/approval-defs/sync-feishu": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "审批定义"
+                ],
+                "summary": "同步飞书审批定义 (表单)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "审批定义编码 (飞书中的 Approval Code)",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     }
@@ -4943,6 +4946,37 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/approval_defs/code/{code}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "审批定义"
+                ],
+                "summary": "根据编码获取审批定义",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "审批定义编码",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/piemdm_internal_model.ApprovalDefinition"
                         }
                     }
                 }
@@ -6686,6 +6720,10 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 64
                 },
+                "externalInstanceID": {
+                    "description": "外部审批实例ID",
+                    "type": "string"
+                },
                 "formData": {
                     "description": "表单数据",
                     "type": "string"
@@ -6921,6 +6959,10 @@ const docTemplate = `{
                 },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "externalTaskID": {
+                    "description": "外部审批任务ID",
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -8062,7 +8104,7 @@ const docTemplate = `{
                     "maxLength": 8
                 },
                 "status": {
-                    "description": "状态：Normal 正常 Frozen 已冻结 Deleted 已删除\n状态：Normal 正常 Frozen 已冻结 Deleted 已删除",
+                    "description": "状态：Normal 正常 Frozen 已冻结 Deleted 已删除",
                     "type": "string"
                 },
                 "superiorUsername": {

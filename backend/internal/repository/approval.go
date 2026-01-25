@@ -17,6 +17,7 @@ type ApprovalRepository interface {
 	// 基础CRUD操作
 	FindOne(id uint) (*model.Approval, error)
 	FirstByCode(code string) (*model.Approval, error)
+	FirstByExternalInstanceID(externalID string) (*model.Approval, error)
 	First(where map[string]any) (*model.Approval, error)
 	FindPage(page, pageSize int, total *int64, where map[string]any) ([]*model.Approval, error)
 	Create(c *gin.Context, approval *model.Approval) error
@@ -91,6 +92,20 @@ func (r *approvalRepository) FindOne(id uint) (*model.Approval, error) {
 func (r *approvalRepository) FirstByCode(code string) (*model.Approval, error) {
 	var approval model.Approval
 	if err := r.db.Where("code = ? AND deleted_at IS NULL", code).First(&approval).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &approval, nil
+}
+
+func (r *approvalRepository) FirstByExternalInstanceID(externalID string) (*model.Approval, error) {
+	var approval model.Approval
+	if err := r.db.Where("external_instance_id = ? AND deleted_at IS NULL", externalID).First(&approval).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return &approval, nil

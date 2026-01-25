@@ -11,7 +11,7 @@ import (
 	"piemdm/internal/model"
 	"piemdm/internal/repository"
 	"piemdm/internal/service"
-	"piemdm/pkg/config"
+	"piemdm/pkg/configloader"
 	"piemdm/pkg/log"
 
 	"github.com/gin-gonic/gin"
@@ -56,7 +56,7 @@ func (s *OpenAPITestSuite) SetupSuite() {
 	os.Setenv("APP_CONF", configPath)
 
 	// 从配置文件加载配置
-	s.conf = config.NewConfig()
+	s.conf, _ = configloader.Load()
 
 	// 初始化日志
 	s.logger = log.NewLog(s.conf)

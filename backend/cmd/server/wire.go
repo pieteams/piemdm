@@ -19,9 +19,23 @@ import (
 	"piemdm/pkg/webhook"
 	"piemdm/pkg/webhook/task"
 
+	"piemdm/internal/configs"
+	"piemdm/internal/integration/feishu"
+
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
+
+// provideFeishuConfig provides FeishuConfig from viper
+func provideFeishuConfig(v *viper.Viper) configs.FeishuConfig {
+	var cfg configs.Config
+	if err := v.Unmarshal(&cfg); err != nil {
+		// Log or handle error, but wire providers usually panic or return error
+		// For simplicity, return empty or default if unmarshal fails, or just assume it works as main.go verified it.
+		return configs.FeishuConfig{}
+	}
+	return cfg.Integrations.Feishu
+}
 
 var HandlerSet = wire.NewSet(
 	handler.NewHandler,
@@ -84,6 +98,10 @@ var ServiceSet = wire.NewSet(
 	// OpenAPI
 	service.NewOpenApiAuthService,
 	service.NewApplicationApiLogService,
+
+	// Integration
+	provideFeishuConfig,
+	feishu.NewService,
 )
 
 var RepositorySet = wire.NewSet(

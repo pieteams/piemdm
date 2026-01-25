@@ -9,6 +9,7 @@ import (
 	"piemdm/internal/handler"
 	"piemdm/internal/middleware"
 	"piemdm/internal/repository"
+	"piemdm/internal/service"
 	"piemdm/pkg/jwt"
 	"piemdm/pkg/log"
 
@@ -29,6 +30,7 @@ func NewServerHTTP(
 	jwt *jwt.JWT,
 	entity handler.EntityHandler,
 	approval handler.ApprovalHandler,
+	approvalService service.ApprovalService,
 	approvalDefinition handler.ApprovalDefinitionHandler,
 	approvalNode handler.ApprovalNodeHandler,
 	approvalTask handler.ApprovalTaskHandler,
@@ -103,6 +105,7 @@ func NewServerHTTP(
 		Enforcer:                enforcer,
 		Entity:                  entity,
 		Approval:                approval,
+		ApprovalService:         approvalService,
 		ApprovalDefinition:      approvalDefinition,
 		ApprovalNode:            approvalNode,
 		ApprovalTask:            approvalTask,

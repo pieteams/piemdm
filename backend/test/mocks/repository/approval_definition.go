@@ -137,6 +137,21 @@ func (mr *MockApprovalDefinitionRepositoryMockRecorder) FindActiveByEntityCode(e
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindActiveByEntityCode", reflect.TypeOf((*MockApprovalDefinitionRepository)(nil).FindActiveByEntityCode), entityCode)
 }
 
+// FindActiveFeishuCodes mocks base method.
+func (m *MockApprovalDefinitionRepository) FindActiveFeishuCodes() ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindActiveFeishuCodes")
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindActiveFeishuCodes indicates an expected call of FindActiveFeishuCodes.
+func (mr *MockApprovalDefinitionRepositoryMockRecorder) FindActiveFeishuCodes() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindActiveFeishuCodes", reflect.TypeOf((*MockApprovalDefinitionRepository)(nil).FindActiveFeishuCodes))
+}
+
 // FindByCategory mocks base method.
 func (m *MockApprovalDefinitionRepository) FindByCategory(category string) ([]*model.ApprovalDefinition, error) {
 	m.ctrl.T.Helper()

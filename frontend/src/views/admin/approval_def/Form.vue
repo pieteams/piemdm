@@ -48,10 +48,13 @@
           <div class="form-group row">
             <legend :class="['col-form-label', 'col-sm-2', { required: requiredFields.formData }]">
               {{ $t('FormData') }}:
+              <button v-if="platform !== 'Builtin'" type="button" class="btn btn-outline-info btn-sm ms-2" @click="handleSyncFeishu" :disabled="!code">
+                <i class="bi bi-arrow-repeat"></i> {{ $t('Sync') }}
+              </button>
             </legend>
             <div class="col-sm-6">
               <textarea class="form-control form-control-sm" v-model="formData" v-bind="formDataAttrs" name="formData"
-                :placeholder="$t('FormData')" maxlength="255" rows="3"></textarea>
+                :placeholder="$t('FormData')" maxlength="20000" rows="5"></textarea>
               <div v-if="errors.FormData" class="text-danger small mt-1">
                 {{ errors.FormData }}
               </div>
@@ -193,6 +196,41 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+import { syncFeishuDefinition } from '@/api/approval_def';
+import { AppToast } from '@/components/toast.js';
+
+const handleSyncFeishu = async () => {
+  if (!code.value) {
+    AppToast.show({
+      message: '请先填写 Code',
+      color: 'warning',
+    });
+    return;
+  }
+
+  try {
+    const res = await syncFeishuDefinition(code.value);
+
+    // 标准化响应解析: 后端 HandleSuccess 直接返回数据对象，Axios 放在 res.data 中
+    if (res.data && res.data.form_data) {
+      formData.value = res.data.form_data;
+      AppToast.show({
+        message: '同步成功',
+        color: 'success',
+      });
+    } else {
+       AppToast.show({
+        message: '未获取到表单内容',
+        color: 'warning',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    // request.js usually handles error toast, but we can add specific one
+    // AppToast.show({ message: '同步失败', color: 'danger' });
+  }
+};
 </script>
 
 <style scoped>

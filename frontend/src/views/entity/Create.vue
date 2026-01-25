@@ -135,23 +135,23 @@ const getFieldData = async () => {
     // Validate Select field configuration
     const misconfiguredFieldsList = [];
     res.data.forEach(field => {
-      const isSelectField = field.FieldType === 'select' ||
-        field.FieldType === 'multiselect' ||
-        field.FieldType === 'radio' ||
-        field.FieldType === 'checkboxgroup' ||
-        field.Options?.ui?.widget === 'Select' ||
-        field.Options?.ui?.widget === 'MultiSelect' ||
-        field.Options?.ui?.widget === 'RadioGroup' ||
-        field.Options?.ui?.widget === 'CheckboxGroup';
+      const isSelectField = field.field_type === 'select' ||
+        field.field_type === 'multiselect' ||
+        field.field_type === 'radio' ||
+        field.field_type === 'checkboxgroup' ||
+        field.options?.ui?.widget === 'Select' ||
+        field.options?.ui?.widget === 'MultiSelect' ||
+        field.options?.ui?.widget === 'RadioGroup' ||
+        field.options?.ui?.widget === 'CheckboxGroup';
 
-      const hasTarget = field.Options?.relation?.target &&
-        field.Options.relation.target.trim() !== '';
+      const hasTarget = field.options?.relation?.target &&
+        field.options.relation.target.trim() !== '';
 
       if (isSelectField && !hasTarget) {
         misconfiguredFieldsList.push({
-          code: field.Code,
-          name: field.Name,
-          fieldType: field.FieldType
+          code: field.code,
+          name: field.name,
+          fieldType: field.field_type
         });
       }
     });
@@ -188,8 +188,8 @@ const getFieldData = async () => {
     // Use Promise.all to wait for all async operations to complete
     const promises = res.data.map(async field => {
       // Get relation config (new way first, backward compatible with old way)
-      const relationTable = field.Options?.relation?.target;
-      const relationFilter = field.Options?.relation?.filter;
+      const relationTable = field.options?.relation?.target;
+      const relationFilter = field.options?.relation?.filter;
 
       // Load options for all fields with relation config
       // Exclude empty strings and undefined
@@ -202,10 +202,10 @@ const getFieldData = async () => {
           });
 
           if (res2) {
-            dicts['dict-' + field.Code] = res2.data;
+            dicts['dict-' + field.code] = res2.data;
           }
         } catch (error) {
-          console.error('Error loading options for', field.Code, ':', error);
+          console.error('Error loading options for', field.code, ':', error);
         }
       }
     });

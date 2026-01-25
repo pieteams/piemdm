@@ -56,9 +56,9 @@
                                 <!-- Value -->
                                 <span class="text-truncate">
                                     <!-- status字段使用颜色标识 -->
-                                    <span v-if="field.code === 'status'" :class="getStatusClass(row[field.code])">
-                                        {{ row[field.code] }}
-                                    </span>
+                                    <template v-if="field.code === 'status'">
+                                        <StatusBadge :status="row[field.code]" />
+                                    </template>
                                     <template v-else>
                                         {{ row[`${field.code}_display`] !== null && row[`${field.code}_display`] !==
                                             undefined ?
@@ -70,9 +70,9 @@
                             <!-- Other Columns -->
                             <div v-else>
                                 <!-- status字段使用颜色标识 -->
-                                <span v-if="field.code === 'status'" :class="getStatusClass(row[field.code])">
-                                    {{ row[field.code] }}
-                                </span>
+                                <template v-if="field.code === 'status'">
+                                    <StatusBadge :status="row[field.code]" />
+                                </template>
                                 <template v-else>
                                     {{ row[`${field.code}_display`] !== null && row[`${field.code}_display`] !==
                                         undefined ?
@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 
 const props = defineProps({
     items: {
@@ -124,16 +125,6 @@ const emit = defineEmits(['update:selected']);
 const expandedIds = ref(new Set());
 const selectedIds = ref([]);
 
-// 状态样式辅助函数 (复用自 Index.vue)
-const getStatusClass = (status) => {
-    switch (status) {
-        case 'Draft': return 'badge bg-secondary'; // 草稿
-        case 'Normal': return 'badge bg-success';  // 正常
-        case 'Frozen': return 'badge bg-warning text-dark'; // 冻结
-        case 'Deleted': return 'badge bg-danger';  // 删除
-        default: return '';
-    }
-};
 
 // --- Tree Logic ---
 

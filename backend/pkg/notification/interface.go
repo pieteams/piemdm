@@ -122,93 +122,93 @@ type QueueItem struct {
 // NotificationConfig 通知配置
 type NotificationConfig struct {
 	// 邮件配置
-	Email EmailConfig `yaml:"email"`
+	Email EmailConfig `yaml:"email" mapstructure:"email"`
 
 	// 短信配置
-	SMS SMSConfig `yaml:"sms"`
+	SMS SMSConfig `yaml:"sms" mapstructure:"sms"`
 
 	// 飞书配置
-	Feishu FeishuConfig `yaml:"feishu"`
+	Feishu FeishuConfig `yaml:"feishu" mapstructure:"feishu"`
 
 	// 钉钉配置
-	Dingtalk DingtalkConfig `yaml:"dingtalk"`
+	Dingtalk DingtalkConfig `yaml:"dingtalk" mapstructure:"dingtalk"`
 
 	// 自定义配置
-	Custom CustomConfig `yaml:"custom"`
+	Custom CustomConfig `yaml:"custom" mapstructure:"custom"`
 }
 
 // EmailConfig 邮件配置
 type EmailConfig struct {
-	Enabled  bool   `yaml:"enabled"`
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	From     string `yaml:"from"`
-	FromName string `yaml:"from_name"`
-	UseTLS   bool   `yaml:"use_tls"`
+	Enabled  bool   `yaml:"enabled" mapstructure:"enabled"`
+	Host     string `yaml:"host" mapstructure:"host"`
+	Port     int    `yaml:"port" mapstructure:"port"`
+	Username string `yaml:"username" mapstructure:"username"`
+	Password string `yaml:"password" mapstructure:"password"`
+	From     string `yaml:"from" mapstructure:"from"`
+	FromName string `yaml:"from_name" mapstructure:"from_name"`
+	UseTLS   bool   `yaml:"use_tls" mapstructure:"use_tls"`
 }
 
 // SMSConfig 短信配置
 type SMSConfig struct {
-	Enabled  bool             `yaml:"enabled"`
-	Provider string           `yaml:"provider"`
-	Aliyun   AliyunSMSConfig  `yaml:"aliyun"`
-	Tencent  TencentSMSConfig `yaml:"tencent"`
-	Custom   CustomSMSConfig  `yaml:"custom"`
+	Enabled  bool             `yaml:"enabled" mapstructure:"enabled"`
+	Provider string           `yaml:"provider" mapstructure:"provider"`
+	Aliyun   AliyunSMSConfig  `yaml:"aliyun" mapstructure:"aliyun"`
+	Tencent  TencentSMSConfig `yaml:"tencent" mapstructure:"tencent"`
+	Custom   CustomSMSConfig  `yaml:"custom" mapstructure:"custom"`
 }
 
 // AliyunSMSConfig 阿里云短信配置
 type AliyunSMSConfig struct {
-	AccessKeyID     string `yaml:"access_key_id"`
-	AccessKeySecret string `yaml:"access_key_secret"`
-	SignName        string `yaml:"sign_name"`
-	TemplateCode    string `yaml:"template_code"`
+	AccessKeyID     string `yaml:"access_key_id" mapstructure:"access_key_id"`
+	AccessKeySecret string `yaml:"access_key_secret" mapstructure:"access_key_secret"`
+	SignName        string `yaml:"sign_name" mapstructure:"sign_name"`
+	TemplateCode    string `yaml:"template_code" mapstructure:"template_code"`
 }
 
 // TencentSMSConfig 腾讯云短信配置
 type TencentSMSConfig struct {
-	SecretID   string `yaml:"secret_id"`
-	SecretKey  string `yaml:"secret_key"`
-	SDKAppID   string `yaml:"sms_sdk_app_id"`
-	SignName   string `yaml:"sign_name"`
-	TemplateID string `yaml:"template_id"`
+	SecretID   string `yaml:"secret_id" mapstructure:"secret_id"`
+	SecretKey  string `yaml:"secret_key" mapstructure:"secret_key"`
+	SDKAppID   string `yaml:"sms_sdk_app_id" mapstructure:"sms_sdk_app_id"`
+	SignName   string `yaml:"sign_name" mapstructure:"sign_name"`
+	TemplateID string `yaml:"template_id" mapstructure:"template_id"`
 }
 
 // CustomSMSConfig 自定义短信配置
 type CustomSMSConfig struct {
-	APIURL string `yaml:"api_url"`
-	APIKey string `yaml:"api_key"`
-	Method string `yaml:"method"`
+	APIURL string `yaml:"api_url" mapstructure:"api_url"`
+	APIKey string `yaml:"api_key" mapstructure:"api_key"`
+	Method string `yaml:"method" mapstructure:"method"`
 }
 
 // FeishuConfig 飞书配置
 type FeishuConfig struct {
-	Enabled    bool   `yaml:"enabled"`
-	AppID      string `yaml:"app_id"`
-	AppSecret  string `yaml:"app_secret"`
-	WebhookURL string `yaml:"webhook_url"`
+	Enabled    bool   `yaml:"enabled" mapstructure:"enabled"`
+	AppID      string `yaml:"app_id" mapstructure:"app_id"`
+	AppSecret  string `yaml:"app_secret" mapstructure:"app_secret"`
+	WebhookURL string `yaml:"webhook_url" mapstructure:"webhook_url"`
 }
 
 // DingtalkConfig 钉钉配置
 type DingtalkConfig struct {
-	Enabled    bool   `yaml:"enabled"`
-	AppKey     string `yaml:"app_key"`
-	AppSecret  string `yaml:"app_secret"`
-	WebhookURL string `yaml:"webhook_url"`
+	Enabled    bool   `yaml:"enabled" mapstructure:"enabled"`
+	AppKey     string `yaml:"app_key" mapstructure:"app_key"`
+	AppSecret  string `yaml:"app_secret" mapstructure:"app_secret"`
+	WebhookURL string `yaml:"webhook_url" mapstructure:"webhook_url"`
 }
 
 // CustomConfig 自定义配置
 type CustomConfig struct {
-	Enabled   bool             `yaml:"enabled"`
-	Endpoints []CustomEndpoint `yaml:"endpoints"`
+	Enabled   bool             `yaml:"enabled" mapstructure:"enabled"`
+	Endpoints []CustomEndpoint `yaml:"endpoints" mapstructure:"endpoints"`
 }
 
 // CustomEndpoint 自定义端点配置
 type CustomEndpoint struct {
-	Name    string            `yaml:"name"`
-	URL     string            `yaml:"url"`
-	Method  string            `yaml:"method"`
-	Headers map[string]string `yaml:"headers"`
-	Timeout string            `yaml:"timeout"`
+	Name    string            `yaml:"name" mapstructure:"name"`
+	URL     string            `yaml:"url" mapstructure:"url"`
+	Method  string            `yaml:"method" mapstructure:"method"`
+	Headers map[string]string `yaml:"headers" mapstructure:"headers"`
+	Timeout string            `yaml:"timeout" mapstructure:"timeout"`
 }

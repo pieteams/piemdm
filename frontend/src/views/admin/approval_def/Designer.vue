@@ -114,13 +114,15 @@
 </template>
 
 <script setup>
+  import { getApprovalDef } from '@/api/approval_def'; // Changed from getApprovalDefList
   import { batchSyncApprovalNodes, getApprovalNodeList } from '@/api/approval_node';
   import { getUserList } from '@/api/user';
   import { onMounted, ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router'; // added useRoute
 
   // 路由相关
   const router = useRouter();
+  const route = useRoute(); // Use route for params
   const workflowData = ref({});
   const messageVisible = ref(false);
   const messageText = ref('');
@@ -134,16 +136,35 @@
 
   // 方法定义
   const loadWorkflowData = async () => {
-    const params = router.currentRoute.value.query;
+    const params = route.params; // Get ID from path params
+    const query = route.query;   // Get Code from query params
+
     try {
-      const approvalDefCode = params.code;
+      const approvalDefId = params.id;
+      // 1. 检查审批定义详情，确认 Platform
+      if (approvalDefId) {
+        const defRes = await getApprovalDef({ id: approvalDefId });
+        if (defRes.data) {
+          const def = defRes.data;
+          if (def.Platform && def.Platform !== 'Builtin') {
+            showMessage(`当前审批流由外部平台 (${def.Platform}) 管理，无法在此设计`, 'warning');
+            setTimeout(() => {
+              goBack();
+            }, 1500);
+            return;
+          }
+        }
+      }
+
+      const approvalDefCode = query.code;
       if (approvalDefCode && approvalDefCode !== 'new') {
-        // 加载现有工作流数据
+        // 2. 加载现有工作流数据
         const response = await getApprovalNodeList({ approvalDefCode: approvalDefCode });
         await workflowBuilder.value.loadFromBackendData(response.data);
         // workflowData.value = nodes
       }
     } catch (error) {
+      console.error(error);
       showMessage('加载工作流数据失败', 'error');
     }
   };

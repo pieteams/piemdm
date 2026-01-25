@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"piemdm/internal/model"
@@ -184,7 +183,6 @@ func (h *applicationHandler) Update(c *gin.Context) {
 		Description: req.Description,
 		Status:      req.Status,
 	}
-	fmt.Printf("\n\napplication1: %#v\n\n", application)
 
 	err := h.applicationService.Update(c, &application)
 	if err != nil {

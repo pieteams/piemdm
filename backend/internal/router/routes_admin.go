@@ -183,6 +183,7 @@ func registerAdminRoutes(r *gin.RouterGroup, h *Handlers) {
 			approvalDefinitions.GET("/code/:code/versions", middleware.CasbinMiddleware(h.Enforcer, "approval_def", "list"), h.ApprovalDefinition.GetVersions)
 			approvalDefinitions.POST("/:id/versions", middleware.CasbinMiddleware(h.Enforcer, "approval_def", "create"), h.ApprovalDefinition.CreateVersion)
 			approvalDefinitions.POST("/:id/validate", middleware.CasbinMiddleware(h.Enforcer, "approval_def", "list"), h.ApprovalDefinition.Validate)
+			approvalDefinitions.POST("/sync-feishu", middleware.CasbinMiddleware(h.Enforcer, "approval_def", "update"), h.ApprovalDefinition.SyncFeishu) // sync feishu
 		}
 
 		// 审批节点相关路由

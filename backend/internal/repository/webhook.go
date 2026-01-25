@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	"piemdm/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -37,12 +35,11 @@ func NewWebhookRepository(repository *Repository, source Base) WebhookRepository
 
 func (r *webhookRepository) FindOne(id uint) (*model.Webhook, error) {
 	var webhook model.Webhook
-	fmt.Printf("\n\nid: %#v\n\n", id)
-	fmt.Printf("\n\nwebhook: %#v\n\n", webhook)
+
 	if err := r.source.FirstById(&webhook, id); err != nil {
 		return nil, err
 	}
-	fmt.Printf("\n\nwebhook2: %#v\n\n", webhook)
+
 	return &webhook, nil
 }
 
@@ -64,14 +61,6 @@ func (r *webhookRepository) FindPage(page, pageSize int, total *int64, where map
 	var webhooks []*model.Webhook
 	var webhook model.Webhook
 
-	// if err := r.db.Where("deleted_at is null").Offset((page - 1) * pageSize).Limit(pageSize).Find(&webhooks).Error; err != nil {
-	// 	return nil, err
-	// }
-
-	// if err := r.db.Model(webhook).Where("deleted_at is null").Count(total).Error; err != nil {
-	// 	r.logger.Error("sys_apptoval repository count err", "err", err)
-	// 	return nil, err
-	// }
 	preloads := []string{}
 	err := r.source.FindPage(webhook, &webhooks, page, pageSize, total, where, preloads, "ID desc")
 	if err != nil {

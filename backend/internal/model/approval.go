@@ -8,11 +8,12 @@ import (
 
 // Approval 审批实例模型
 type Approval struct {
-	ID              uint   `gorm:"primarykey"`
-	Code            string `gorm:"size:128;unique;not null"`                     // 审批实例唯一编码
-	Title           string `gorm:"size:128;not null" binding:"required,max=128"` // 审批标题
-	ApprovalDefCode string `gorm:"size:128;not null" binding:"required,max=128"` // 审批定义编码
-	EntityCode      string `gorm:"size:64" binding:"max=64"`                     // 关联实体编码
+	ID                 uint   `gorm:"primarykey"`
+	Code               string `gorm:"size:128;unique;not null"`                     // 审批实例唯一编码
+	Title              string `gorm:"size:128;not null" binding:"required,max=128"` // 审批标题
+	ApprovalDefCode    string `gorm:"size:128;not null" binding:"required,max=128"` // 审批定义编码
+	EntityCode         string `gorm:"size:64" binding:"max=64"`                     // 关联实体编码
+	ExternalInstanceID string `gorm:"size:128;index"`                               // 外部审批实例ID
 
 	// 流程信息
 	SerialNumber    string `gorm:"size:128" binding:"max=128"` // 审批单编号

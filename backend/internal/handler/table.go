@@ -85,7 +85,6 @@ func (h *tableHandler) List(c *gin.Context) {
 		where["relation"] = relation
 	}
 	// h.logger.Info("ListTables where: ", "where", where)
-	// fmt.Printf("c.Request.URL.Query(): %#v\n\n", c.Request.URL.Query())
 
 	// Apply permission filtering
 	userIDStr := c.GetString("user_id")
@@ -225,7 +224,6 @@ func (h *tableHandler) Update(c *gin.Context) {
 	// Prevent code modification after creation - clear code so GORM won't update it
 	table.Code = ""
 
-	// fmt.Printf("\n\ntable2: %#v\n\n", table)
 	err := h.tableService.Update(c, &table)
 	if err != nil {
 		resp.HandleError(c, http.StatusInternalServerError, err.Error(), nil)

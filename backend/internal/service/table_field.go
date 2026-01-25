@@ -352,11 +352,13 @@ func (s *tableFieldService) GetTableFields(tableCode string) ([]*model.FieldMeta
 	var fields []*model.FieldMetadata
 
 	// 1. 从table_field读取用户定义的业务字段
-	where := map[string]any{
+	baseTableCode := strings.TrimSuffix(tableCode, "_draft")
+
+	// 查询条件支持原表或草稿表（兼容某些手动为草稿表定义字段的情况）
+	userFields, err := s.tableFieldRepository.Find("*", map[string]any{
 		"status":     "Normal",
-		"table_code": tableCode,
-	}
-	userFields, err := s.tableFieldRepository.Find("*", where)
+		"table_code": []string{tableCode, baseTableCode},
+	})
 	if err != nil {
 		return nil, err
 	}

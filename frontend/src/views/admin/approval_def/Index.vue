@@ -79,9 +79,12 @@
             <td>{{ formatDate(item.UpdatedAt) }}</td>
             <td>{{ formatDate(item.CreatedAt) }}</td>
             <td class="sticky-col sticky-col-actions text-center">
-              <a :href="'/admin/approval_def/designer/' + item.ID + '?code=' + item.Code" title="流程设计">
+              <a v-if="!item.Platform || item.Platform === 'Builtin'" :href="'/admin/approval_def/designer/' + item.ID + '?code=' + item.Code" title="流程设计">
                 <i class="bi bi-diagram-3 text-primary"></i>
               </a>
+              <span v-else class="text-muted p-2" title="外部流程无法设计">
+                <i class="bi bi-diagram-3"></i>
+              </span>
               <a :href="'/admin/approval_def/update?id=' + item.ID" title="编辑">
                 <i class="bi bi-pencil"></i>
               </a>

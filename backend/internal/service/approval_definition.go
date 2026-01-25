@@ -2,8 +2,10 @@
 package service
 
 import (
+	"context"
 	"errors"
 
+	"piemdm/internal/integration/feishu"
 	"piemdm/internal/model"
 	"piemdm/internal/repository"
 
@@ -43,23 +45,29 @@ type ApprovalDefinitionService interface {
 	ValidateDefinition(def *model.ApprovalDefinition) error
 	CanDelete(id uint) (bool, error)
 	CanEdit(id uint) (bool, error)
+
+	// Feishu Sync
+	SyncFeishuDefinition(code string) (string, error)
 }
 
 type approvalDefinitionService struct {
 	*Service
 	approvalDefinitionRepository repository.ApprovalDefinitionRepository
 	approvalNodeRepository       repository.ApprovalNodeRepository
+	feishuIntegrationService     *feishu.Service
 }
 
 func NewApprovalDefinitionService(
 	service *Service,
 	approvalDefinitionRepository repository.ApprovalDefinitionRepository,
 	approvalNodeRepository repository.ApprovalNodeRepository,
+	feishuIntegrationService *feishu.Service,
 ) ApprovalDefinitionService {
 	return &approvalDefinitionService{
 		Service:                      service,
 		approvalDefinitionRepository: approvalDefinitionRepository,
 		approvalNodeRepository:       approvalNodeRepository,
+		feishuIntegrationService:     feishuIntegrationService,
 	}
 }
 
@@ -281,4 +289,14 @@ func (s *approvalDefinitionService) CanEdit(id uint) (bool, error) {
 		return false, err
 	}
 	return def.CanEdit(), nil
+}
+
+func (s *approvalDefinitionService) SyncFeishuDefinition(code string) (string, error) {
+	if s.feishuIntegrationService == nil {
+		return "", errors.New("Feishu integration service is not available")
+	}
+
+	// 使用 background context 或传入 request context (如果能修改接口签名)
+	// 这里简化使用 Background
+	return s.feishuIntegrationService.GetApprovalDefinition(context.Background(), code)
 }

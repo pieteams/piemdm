@@ -83,8 +83,6 @@ func (r *base) Save(instance any) error {
 
 // // Updates 更新数据
 func (r *base) Updates(model any, instance any) error {
-	// fmt.Printf("base model: %#v\n", model)
-	// fmt.Printf("base instance: %#v\n", instance)
 	return r.db.Model(model).Updates(instance).Error
 }
 

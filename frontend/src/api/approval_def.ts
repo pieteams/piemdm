@@ -156,7 +156,7 @@ export const updateApprovalDefStatus = (
  * @param params - 查询参数
  * @returns Promise<AxiosResponse<ApiResponse<ApprovalDefinition>>>
  */
-export const findApprovalDef = (
+export const getApprovalDef = (
   params: GetApprovalDefParams
 ): Promise<AxiosResponse<ApiResponse<ApprovalDefinition>>> => {
   return service.get(`/admin/approval_defs/${params.id}`);
@@ -172,4 +172,28 @@ export const getApprovalDefList = (
   params?: GetApprovalDefListParams
 ): Promise<AxiosResponse<ApiResponse<ApprovalDefinition[]>>> => {
   return service.get('/admin/approval_defs', { params });
+};
+
+/**
+ * 根据编码获取 ApprovalDefinition (用户权限)
+ *
+ * @param code - 审批定义编码
+ * @returns Promise<AxiosResponse<ApiResponse<ApprovalDefinition>>>
+ */
+export const getApprovalDefByCode = (
+  code: string
+): Promise<AxiosResponse<ApiResponse<ApprovalDefinition>>> => {
+  return service.get(`/approval_defs/code/${code}`);
+};
+
+/**
+ * 同步飞书审批定义
+ *
+ * @param code - 审批定义编码
+ * @returns Promise<AxiosResponse<ApiResponse<{ form_data: string }>>>
+ */
+export const syncFeishuDefinition = (
+  code: string
+): Promise<AxiosResponse<ApiResponse<{ form_data: string }>>> => {
+  return service.post('/admin/approval_defs/sync-feishu', { code });
 };

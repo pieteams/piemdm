@@ -25,7 +25,6 @@ type User struct {
 	LastLogin        *time.Time // 最后登录时间
 
 	// 状态：Normal 正常 Frozen 已冻结 Deleted 已删除
-	// 状态：Normal 正常 Frozen 已冻结 Deleted 已删除
 	Status    string `gorm:"size:8;default:Normal"`
 	CreatedBy string `gorm:"size:64"` // 创建人
 	UpdatedBy string `gorm:"size:64"` // 更新人

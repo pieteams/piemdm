@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
+	"net/http"
 	"regexp"
 	"slices"
 	"sort"
@@ -12,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"context"
+	"piemdm/internal/integration/feishu"
 	"piemdm/internal/model"
 	"piemdm/internal/repository"
 	"piemdm/pkg/notification"
@@ -88,6 +92,9 @@ type ApprovalService interface {
 	// 统计方法
 	GetApprovalStatisticsFlow(applicantID string) (map[string]int64, error)
 	GetExpiredApprovalsFlow() ([]*model.Approval, error)
+
+	// 其它业务方法
+	SyncFeishuSubscriptions(ctx context.Context) error
 }
 
 type approvalService struct {
@@ -113,6 +120,12 @@ type approvalService struct {
 
 	// 通知服务
 	notificationService notification.NotificationService
+
+	// 集成服务
+	feishuIntegrationService *feishu.Service
+
+	// 自动编码服务
+	autocodeService AutocodeService
 }
 
 func NewApprovalService(
@@ -133,8 +146,10 @@ func NewApprovalService(
 	approvalTaskRepository repository.ApprovalTaskRepository,
 	userRepository repository.UserRepository,
 	notificationService notification.NotificationService,
+	feishuIntegrationService *feishu.Service,
+	autocodeService AutocodeService,
 ) ApprovalService {
-	return &approvalService{
+	s := &approvalService{
 		Service:                           service,
 		approvalRepository:                approvalRepository,
 		approvalTaskService:               approvalTaskService,
@@ -152,12 +167,92 @@ func NewApprovalService(
 		approvalTaskRepository:            approvalTaskRepository,
 		userRepository:                    userRepository,
 		notificationService:               notificationService,
+		feishuIntegrationService:          feishuIntegrationService,
+		autocodeService:                   autocodeService,
 	}
+
+	// 注册飞书回调
+	if feishuIntegrationService != nil {
+		feishuIntegrationService.SetApprovalCallback(func(ctx context.Context, externalInstID string, status string) error {
+			return s.handleFeishuApprovalUpdate(ctx, externalInstID, status)
+		})
+	}
+
+	return s
+}
+
+// SyncFeishuSubscriptions 同步并激活所有活跃的飞书审批定义订阅
+func (s *approvalService) SyncFeishuSubscriptions(ctx context.Context) error {
+	if s.feishuIntegrationService == nil {
+		return nil
+	}
+
+	// 1. 获取所有活跃的飞书审批定义 Code
+	codes, err := s.approvalDefinitionRepository.FindActiveFeishuCodes()
+	if err != nil {
+		return fmt.Errorf("failed to load active feishu codes: %w", err)
+	}
+
+	// 2. 批量订阅
+	s.feishuIntegrationService.SubscribeAllApprovals(ctx, codes)
+
+	return nil
 }
 
 // 基础CRUD操作
 func (s *approvalService) Get(id uint) (*model.Approval, error) {
 	return s.approvalRepository.FindOne(id)
+}
+
+// createDummyContext 创建一个极简的 Gin 上下文用于后台任务
+func (s *approvalService) createDummyContext(ctx context.Context, userName string) *gin.Context {
+	c, _ := gin.CreateTestContext(nil)
+	c.Request, _ = http.NewRequestWithContext(ctx, "POST", "/feishu/callback", nil)
+	c.Set("user_id", uint(0))
+	c.Set("user_name", userName)
+	return c
+}
+
+// handleFeishuApprovalUpdate 处理来自飞书集成的审批状态变更
+func (s *approvalService) handleFeishuApprovalUpdate(ctx context.Context, externalInstID string, status string) error {
+	slog.Info("Handling feishu approval update", "externalID", externalInstID, "status", status)
+
+	// 1. 查找本地审批记录
+	approval, err := s.approvalRepository.FirstByExternalInstanceID(externalInstID)
+	if err != nil {
+		return fmt.Errorf("failed to find approval by external ID %s: %w", externalInstID, err)
+	}
+
+	if approval == nil {
+		slog.Warn("No local approval record found for feishu instance", "externalID", externalInstID)
+		return nil
+	}
+
+	// 如果本地已经是终态，忽略
+	if approval.IsCompleted() {
+		slog.Debug("Approval already completed, ignoring feishu update", "code", approval.Code)
+		return nil
+	}
+
+	// 2. 构造上下文 (针对内部逻辑中大量依赖 c.GetString("user_name") 的情况)
+	c := s.createDummyContext(ctx, "feishu_sync")
+
+	// 3. 根据飞书状态映射本地逻辑
+	// 飞书状态: REJECTED, APPROVED, PENDING ...
+	switch status {
+	case "APPROVED":
+		// 如果是通过，执行本地流程完成逻辑
+		slog.Info("Feishu approval APPROVED, completing local flow", "code", approval.Code)
+		return s.completeApprovalFlow(c, approval)
+	case "REJECTED":
+		// 如果是拒绝，执行本地拒绝逻辑
+		slog.Info("Feishu approval REJECTED, handling local rejection", "code", approval.Code)
+		return s.handleRejection(c, approval, nil, "rejected by feishu")
+	default:
+		slog.Debug("Ignoring non-terminal feishu status", "status", status, "code", approval.Code)
+	}
+
+	return nil
 }
 
 func (s *approvalService) GetByCode(code string) (*model.Approval, error) {
@@ -181,6 +276,12 @@ func (s *approvalService) Create(c *gin.Context, approval *model.Approval) error
 		approval.Code = strings.ToUpper(uuid.String())
 	}
 
+	// 检查是否为飞书审批
+	approvalDef, err := s.approvalDefinitionRepository.First(map[string]any{"code": approval.ApprovalDefCode})
+	if err == nil && approvalDef.Platform == "Feishu" {
+		return s.createFeishuInstance(c, approval, approvalDef)
+	}
+
 	return s.approvalRepository.Create(c, approval)
 }
 
@@ -198,6 +299,95 @@ func (s *approvalService) Delete(c *gin.Context, id uint) (*model.Approval, erro
 
 func (s *approvalService) BatchDelete(c *gin.Context, ids []uint) error {
 	return s.approvalRepository.BatchDelete(c, ids)
+}
+
+// createFeishuInstance 创建飞书审批实例
+func (s *approvalService) createFeishuInstance(c *gin.Context, approval *model.Approval, def *model.ApprovalDefinition) error {
+	ctx := c.Request.Context()
+	feishuUserID, err := s.getFeishuID(c)
+	if err != nil {
+		return fmt.Errorf("failed to get initiator feishu ID: %w", err)
+	}
+
+	// 1. 准备表单数据 (过滤掉非飞书定义的字段)
+	formValues := "[]"
+	if approval.FormData != "" {
+		// 校验：飞书平台必须提供表单定义 JSON，否则无法通过过滤防止 60022 错误
+		if def.FormData == "" {
+			return fmt.Errorf("飞书审批必须配置“表单结构定义”(form_content JSON)")
+		}
+
+		var data map[string]any
+		if err := json.Unmarshal([]byte(approval.FormData), &data); err == nil {
+			// 从定义中获取有效字段 ID
+			allowedIDs := s.feishuIntegrationService.ExtractFieldIDs(def.FormData)
+			if len(allowedIDs) == 0 {
+				return fmt.Errorf("无法从“表单结构定义”中提取到有效的控件 ID")
+			}
+			qv, err := s.feishuIntegrationService.GenerateFormValues(data, allowedIDs)
+			if err == nil {
+				formValues = qv
+			}
+		}
+	}
+
+	// 2. 调用 Feishu Service
+	externalID, err := s.feishuIntegrationService.CreateApprovalInstance(ctx, def.Code, formValues, feishuUserID, approval.Title)
+	if err != nil {
+		return fmt.Errorf("create feishu instance failed: %w", err)
+	}
+
+	approval.ExternalInstanceID = externalID
+	approval.Status = model.ApprovalStatusPending
+
+	return s.approvalRepository.Create(c, approval)
+}
+
+// HandleExternalStatusUpdate 处理外部审批状态变更
+func (s *approvalService) HandleExternalStatusUpdate(ctx context.Context, externalInstID string, status string) error {
+	// 1. 查找审批记录
+	approval, err := s.approvalRepository.First(map[string]any{"external_instance_id": externalInstID})
+	if err != nil {
+		return fmt.Errorf("approval not found for external id: %s", externalInstID)
+	}
+
+	// 2. 映射状态
+	var newStatus string
+	switch status {
+	case "APPROVED":
+		newStatus = model.ApprovalStatusApproved
+	case "REJECTED":
+		newStatus = model.ApprovalStatusRejected
+	case "CANCELED":
+		newStatus = model.ApprovalStatusCanceled
+	case "DELETED":
+		newStatus = model.ApprovalStatusDeleted
+	default:
+		// 其他状态暂不处理或视为Pending
+		return nil
+	}
+
+	// 3. 如果状态改变，执行相应逻辑
+	if approval.Status != newStatus {
+		// Mock Context since we are in background
+		c := &gin.Context{}
+		c.Set("user_name", "System/Feishu")
+
+		if newStatus == model.ApprovalStatusApproved {
+			return s.completeApprovalFlow(c, approval)
+		} else if newStatus == model.ApprovalStatusRejected {
+			// 创建虚构的任务和评论来复用 handleRejection
+			dummyTask := &model.ApprovalTask{}
+			return s.handleRejection(c, approval, dummyTask, "Rejected on Feishu")
+		} else {
+			// 其他状态直接更新
+			approval.Status = newStatus
+			approval.UpdatedBy = "System/Feishu"
+			return s.approvalRepository.Update(c, approval)
+		}
+	}
+
+	return nil
 }
 
 func (s *approvalService) ApproveTask(c *gin.Context, taskId uint, comment string) error {
@@ -1779,16 +1969,25 @@ func (s *approvalService) approved(c *gin.Context, approval *model.Approval, use
 		}
 		draft["id"] = uint(draft["entity_id"].(int64))
 		where["id"] = uint(draft["entity_id"].(int64))
+
+		// 保存操作类型，后面清理 map
+		operation := ""
+		if v, ok := draft["operation"].(string); ok {
+			operation = v
+		}
+
 		delete(draft, "entity_id")
 		delete(draft, "approval_code")
 		delete(draft, "draft_status")
 		delete(draft, "date_version")
+		delete(draft, "instance_code")
+		delete(draft, "operation")
 
 		tableCode := approval.EntityCode
 
 		// 处理 data(entiry) 表中的数据
 		// 注意：draft["operation"] 可能包含历史遗留的 operation 代码或 operation 名称
-		switch draft["operation"] {
+		switch operation {
 		// "C", "MC" - 历史遗留的 Create 代码（根据 GetOperationInfo 应该是 "I"）
 		// "Create", "BatchCreate" - operation 名称
 		case "C", "MC", "Create", "BatchCreate":
@@ -2110,7 +2309,7 @@ func (s *approvalService) GetOperationInfo(operation string, operationInfo *map[
 }
 
 // CreateApprovalFlow 创建审批流程
-func (s *approvalService) CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string) error {
+func (s *approvalService) CreateApprovalFlow(c *gin.Context, tableCode string, approvalInfo map[string]string, formData map[string]any) error {
 	// 1. 根据 tableCode 和 operation 获取审批流定义映射
 	tableApprovalDefs, err := s.tableApprovalDefinitionRepository.List(tableCode, approvalInfo["operation"])
 	if err != nil {
@@ -2133,7 +2332,14 @@ func (s *approvalService) CreateApprovalFlow(c *gin.Context, tableCode string, a
 		return err
 	}
 
-	// 3. 获取审批节点列表
+	// 3. 检查平台并分发
+	if approvalDef.Platform == "Feishu" {
+		// 补充缺失的 entityCode
+		approvalInfo["entityCode"] = tableCode
+		return s.createFeishuInstanceFromInfo(c, approvalDef, approvalInfo, formData)
+	}
+
+	// 4. 获取本地审批节点列表 (仅 Builtin 需要)
 	approvalNodes, err := s.approvalNodeRepository.FindActiveByApprovalDefCode(approvalDef.Code)
 	if err != nil {
 		return err
@@ -2141,6 +2347,360 @@ func (s *approvalService) CreateApprovalFlow(c *gin.Context, tableCode string, a
 
 	// 4. 创建审批实例
 	return s.CreateApprovalInstance(c, approvalDef, approvalNodes, approvalInfo)
+}
+
+// createFeishuInstanceFromInfo 专门用于从 approvalInfo map 创建飞书审批实例
+func (s *approvalService) createFeishuInstanceFromInfo(c *gin.Context, def *model.ApprovalDefinition, approvalInfo map[string]string, formData map[string]any) error {
+	ctx := c.Request.Context()
+
+	// 构造标题: 审批定义名称 - 操作名称
+	title := def.Name
+	if opName, ok := approvalInfo["operationName"]; ok && opName != "" {
+		title = fmt.Sprintf("%s-%s", def.Name, opName)
+	}
+
+	feishuUserID, err := s.getFeishuID(c)
+	if err != nil {
+		return fmt.Errorf("failed to get initiator feishu ID: %w", err)
+	}
+
+	// 生成飞书表单值
+	// fix: Form中添加下面的信息，把字段整理成换行的json内容
+	// 替换测试测试为 字段名：字段值\n字段名：字段值\n字段名：字段值
+	formValues := "[]"
+	if formData != nil {
+		var summary string
+		operation := approvalInfo["operation"]
+
+		// 检查是否为批量操作
+		isBatch := false
+		batchCount := 0
+		var actionName string
+
+		switch operation {
+		case "Import":
+			isBatch = true
+			actionName = "导入"
+			if records, ok := formData["records"].([]any); ok {
+				batchCount = len(records)
+			}
+		case "BatchCreate":
+			if records, ok := formData["records"].([]any); ok {
+				isBatch = true
+				actionName = "批量创建"
+				batchCount = len(records)
+			}
+		case "BatchUpdate":
+			if records, ok := formData["records"].([]any); ok {
+				isBatch = true
+				actionName = "批量更新"
+				batchCount = len(records)
+			} else if ids, ok := formData["ids"].([]any); ok {
+				isBatch = true
+				actionName = "批量更新"
+				batchCount = len(ids)
+			}
+		case "BatchFreeze":
+			isBatch = true
+			actionName = "冻结"
+			if ids, ok := formData["ids"].([]any); ok {
+				batchCount = len(ids)
+			}
+		case "BatchUnfreeze":
+			isBatch = true
+			actionName = "解冻"
+			if ids, ok := formData["ids"].([]any); ok {
+				batchCount = len(ids)
+			}
+		case "BatchDelete":
+			isBatch = true
+			actionName = "删除"
+			if ids, ok := formData["ids"].([]any); ok {
+				batchCount = len(ids)
+			}
+		}
+
+		var originalValues map[string]any
+
+		// Debug: Log entry
+		s.logger.Info("createFeishuInstanceFromInfo: checking for single record optimization", "isBatch", isBatch, "batchCount", batchCount, "operation", operation)
+
+		if isBatch && batchCount == 1 {
+			// 如果批量操作只有一条记录，尝试转换为单条显示
+			if records, ok := formData["records"].([]any); ok && len(records) > 0 {
+				if record, ok := records[0].(map[string]any); ok {
+					s.logger.Info("createFeishuInstanceFromInfo: processing single record from records", "record_op", record["operation"])
+
+					// 将记录合并到 formData
+					for k, v := range record {
+						formData[k] = v
+					}
+					isBatch = false // 视为非批量操作，显示详细字段
+				}
+			} else if operation == "BatchFreeze" || operation == "BatchUnfreeze" || operation == "BatchDelete" || (operation == "BatchUpdate" && formData["ids"] != nil) {
+				// 获取第一条记录的ID
+				if ids, ok := formData["ids"].([]any); ok && len(ids) > 0 {
+					var id uint
+					switch v := ids[0].(type) {
+					case float64:
+						id = uint(v)
+					case int:
+						id = uint(v)
+					case uint:
+						id = v
+					case string:
+						// try parse
+						if val, err := strconv.ParseUint(v, 10, 64); err == nil {
+							id = uint(val)
+						}
+					}
+
+					if id > 0 && approvalInfo["entityCode"] != "" {
+						// 查询详细数据 using entityRepository
+						// Note: entityRepository.FindOne returns map[string]any
+						entityData, err := s.entityRepository.FindOne(approvalInfo["entityCode"], id)
+						if err == nil {
+							// 将实体数据合并到 formData
+							for k, v := range entityData {
+								formData[k] = v
+							}
+							isBatch = false // 视为非批量操作，显示详细字段
+						} else {
+							s.logger.Warn("failed to fetch single entity for summary", "err", err)
+						}
+					}
+				}
+			}
+		}
+
+		// 通用逻辑: 如果是更新操作(包括单条更新 或 优化后的批量更新)，查询原值用于对比
+		// 此时 formData 应该包含了 ID
+		if !isBatch && strings.Contains(operation, "Update") {
+			var id uint
+			// 尝试解析 ID
+			if val, ok := formData["entity_id"]; ok {
+				idInt, _ := strconv.ParseUint(fmt.Sprintf("%v", val), 10, 64)
+				id = uint(idInt)
+			} else if val, ok := formData["id"]; ok {
+				// 注意: 单条修改有时 id 是 entity_id, 有时是 draft id?
+				// 通常 formData 来自 entityMap, id 可能是 database id
+				idInt, _ := strconv.ParseUint(fmt.Sprintf("%v", val), 10, 64)
+				id = uint(idInt)
+			}
+
+			if id > 0 && approvalInfo["entityCode"] != "" {
+				s.logger.Info("createFeishuInstanceFromInfo: fetching original values for diff", "id", id, "entityCode", approvalInfo["entityCode"])
+				if existing, err := s.entityRepository.FindOne(approvalInfo["entityCode"], id); err == nil {
+					originalValues = existing
+					s.logger.Info("createFeishuInstanceFromInfo: original values found", "count", len(existing))
+				} else {
+					s.logger.Warn("createFeishuInstanceFromInfo: failed to find original values", "error", err)
+				}
+			}
+		}
+
+		if isBatch {
+			summary = fmt.Sprintf("批量%s %d 条，不方便在这里显示，请到MDM系统查看明细", actionName, batchCount)
+		} else {
+			// 非批量操作，使用详细字段列表
+			// 获取字段定义以映射名称并排序
+			var tableFields []*model.TableField
+			fieldMap := make(map[string]string)
+			entityCode := approvalInfo["entityCode"]
+			if entityCode != "" {
+				// Find 接口签名: Find(selectString string, where map[string]any) -> []*model.TableField
+				fields, err := s.tableFieldService.Find("", map[string]any{
+					"table_code": entityCode,
+				})
+				if err == nil {
+					tableFields = fields
+					// sort by Sort field
+					sort.Slice(tableFields, func(i, j int) bool {
+						return tableFields[i].Sort < tableFields[j].Sort
+					})
+
+					for _, f := range fields {
+						// f is *model.TableField, access fields directly
+						if f.Code != "" {
+							name := f.Name
+							if name == "" {
+								name = f.Code
+							}
+							fieldMap[f.Code] = name
+						}
+					}
+				} else {
+					s.logger.Warn("failed to fetch table fields for summary", "entityCode", entityCode, "error", err)
+				}
+			}
+
+			var sb strings.Builder
+			processedKeys := make(map[string]bool)
+
+			// 1. 按照由于定义的顺序遍历
+			for _, field := range tableFields {
+				val, ok := formData[field.Code]
+				if !ok {
+					continue
+				}
+
+				// skip system fields if defined in table fields(unlikely but safe)
+				if field.Code == "id" || field.Code == "approval_code" || field.Code == "operation" || field.Code == "action" || field.Code == "entity_id" || field.Code == "title" {
+					processedKeys[field.Code] = true
+					continue
+				}
+
+				valStr := fmt.Sprintf("%v", val)
+
+				// 如果有原值且不一致，显示原值
+				if originalValues != nil {
+					if oldVal, exists := originalValues[field.Code]; exists {
+						oldValStr := fmt.Sprintf("%v", oldVal)
+						if oldValStr != valStr {
+							s.logger.Info("createFeishuInstanceFromInfo: diff detected", "field", field.Code, "new", valStr, "old", oldValStr)
+							valStr = fmt.Sprintf("%s(原值：%s)", valStr, oldValStr)
+						}
+					}
+				}
+
+				displayName := field.Code
+				if name, ok := fieldMap[field.Code]; ok && name != "" {
+					displayName = name
+				}
+				sb.WriteString(fmt.Sprintf("%s: %s\n", displayName, valStr))
+				processedKeys[field.Code] = true
+			}
+
+			// 2. 遍历剩余的 formData (未在定义中找到的字段)
+			for k, v := range formData {
+				if processedKeys[k] {
+					continue
+				}
+				// skip system fields
+				if k == "id" || k == "approval_code" || k == "operation" || k == "action" || k == "entity_id" || k == "title" {
+					continue
+				}
+				// skip additional internal fields
+				if k == "records" || k == "ids" || k == "created_at" || k == "updated_at" || k == "deleted_at" {
+					continue
+				}
+				if k == "status" || k == "created_by" || k == "updated_by" || k == "draft_status" || k == "send_status" {
+					continue
+				}
+				valStr := fmt.Sprintf("%v", v)
+
+				// 如果有原值且不一致，显示原值
+				if originalValues != nil {
+					if oldVal, exists := originalValues[k]; exists {
+						oldValStr := fmt.Sprintf("%v", oldVal)
+						if oldValStr != valStr {
+							s.logger.Info("createFeishuInstanceFromInfo: diff detected (uncategorized)", "field", k, "new", valStr, "old", oldValStr)
+							valStr = fmt.Sprintf("%s(原值：%s)", valStr, oldValStr)
+						}
+					}
+				}
+
+				// 使用字段名称，如果不存在则回退到字段代码
+				displayName := k
+				if name, ok := fieldMap[k]; ok && name != "" {
+					displayName = name
+				}
+				sb.WriteString(fmt.Sprintf("%s: %s\n", displayName, valStr))
+			}
+			summary = sb.String()
+		}
+
+		if summary == "" {
+			summary = "无详细内容"
+		}
+
+		// Construct fixed JSON for the summary widget
+		// Dynamic lookup for the first textarea widget
+		textareaID := s.feishuIntegrationService.ExtractFirstTextareaID(def.FormData)
+		if textareaID == "" {
+			s.logger.Error("failed to find any textarea widget for summary injection", "defCode", def.Code)
+			// fallback or error? user request implies we should use this mechanism.
+			// for now, let's just return error or skip injection to avoid 60022 error (invalid widget id)
+			return fmt.Errorf("审批定义中未找到 textarea 控件，无法注入审批内容摘要。请在飞书审批表单中添加一个多行文本控件")
+		}
+
+		widgetData := []map[string]string{
+			{
+				"id":    textareaID,
+				"type":  "textarea",
+				"value": summary,
+			},
+		}
+		jsonBytes, _ := json.Marshal(widgetData)
+		formValues = string(jsonBytes)
+	}
+
+	// 1. 调用飞书服务创建实例
+	externalID, err := s.feishuIntegrationService.CreateApprovalInstance(ctx, def.Code, formValues, feishuUserID, title)
+	if err != nil {
+		// 如果错误提示用户ID不正确 (1390001)，给出更友好的提示
+		if strings.Contains(err.Error(), "1390001") || strings.Contains(err.Error(), "用户ID不正确") || strings.Contains(err.Error(), "invalid user_id") {
+			return fmt.Errorf("创建飞书审批失败: 飞书提示用户ID不存在。请确认本地用户的 username [%s] 和飞书中的 user_id 一致。原始错误: %w", feishuUserID, err)
+		}
+		return fmt.Errorf("create feishu instance failed: %w", err)
+	}
+
+	// 2. 创建本地审批记录
+	approvalId := s.globalIdService.GetNewID("approval")
+	approvalInstance := model.Approval{
+		ID:                 approvalId,
+		Code:               approvalInfo["approvalCode"],
+		Title:              title,
+		ApprovalDefCode:    def.Code,
+		EntityCode:         approvalInfo["entityCode"],
+		SerialNumber:       s.GenerateSerialNumber(),
+		FormData:           def.FormData,
+		Description:        approvalInfo["reason"],
+		Status:             model.ApprovalStatusPending,
+		ExternalInstanceID: externalID,
+		CreatedBy:          c.GetString("user_name"),
+		UpdatedBy:          c.GetString("user_name"),
+	}
+
+	return s.approvalRepository.Create(c, &approvalInstance)
+}
+
+// getFeishuID 从上下文获取用户ID并查询对应的飞书ID
+func (s *approvalService) getFeishuID(c *gin.Context) (string, error) {
+	// 从上下文中直接获取用户名 (由 JWT 中间件设置)
+	username := c.GetString("user_name")
+	if username == "" {
+		// 备选: 如果上下文没有 user_name (罕见情况), 尝试通过 user_id 查询
+		userIdVal, exists := c.Get("user_id")
+		if !exists {
+			return "", fmt.Errorf("user not logged in")
+		}
+
+		var uid uint
+		switch v := userIdVal.(type) {
+		case string:
+			id, _ := strconv.ParseUint(v, 10, 32)
+			uid = uint(id)
+		case uint:
+			uid = v
+		case float64:
+			uid = uint(v)
+		default:
+			return "", fmt.Errorf("invalid user id type in context")
+		}
+
+		user, err := s.userRepository.FindOne(uid)
+		if err != nil {
+			return "", fmt.Errorf("user not found: %w", err)
+		}
+		username = user.Username
+	}
+
+	// 业务约定: 直接使用 Username 作为飞书 UserID
+	if username == "" {
+		return "", fmt.Errorf("user username is empty")
+	}
+	return username, nil
 }
 
 // CreateApprovalInstance 创建审批实例的具体逻辑
@@ -3012,7 +3572,7 @@ func (s *approvalService) CreateDraftWithApproval(c *gin.Context, tableCode, rea
 	approvalInfo["entityCode"] = tableCode
 
 	// 创建审批流程
-	if err := s.CreateApprovalFlow(c, tableCode, approvalInfo); err != nil {
+	if err := s.CreateApprovalFlow(c, tableCode, approvalInfo, entityMap); err != nil {
 		return err
 	}
 
@@ -3074,6 +3634,13 @@ func (s *approvalService) UpdateDraftWithApproval(c *gin.Context, tableCode, rea
 	entity["status"] = operationInfo["status"]
 	entity["created_by"] = c.GetString("user_name")
 
+	// 生成自动编码 (实际上是用于保留原值)
+	// 如果是 update 操作, generateAutocodes 会查询原数据并填充到 entity 中
+	if err := s.generateAutocodes(c, tableCode, entity); err != nil {
+		s.logger.Warn("Failed to generate/restore autocodes in UpdateDraftWithApproval", "err", err)
+		// 不阻断
+	}
+
 	// Save change information to draft table
 	if err := s.entityRepository.Create(c, tableCodeDraft, entity); err != nil {
 		return err
@@ -3089,7 +3656,7 @@ func (s *approvalService) UpdateDraftWithApproval(c *gin.Context, tableCode, rea
 	approvalInfo["entityCode"] = tableCode
 
 	// Create workflow
-	return s.CreateApprovalFlow(c, tableCode, approvalInfo)
+	return s.CreateApprovalFlow(c, tableCode, approvalInfo, entityMap)
 }
 
 // UpdateByIdsWithApproval 批量更新并启动审批流程
@@ -3154,16 +3721,16 @@ func (s *approvalService) UpdateByIdsWithApproval(c *gin.Context, tableCode, rea
 		// 生成entity struce iterface
 		entity := s.tableFieldRepository.BuildEntity(tableCodeDraft)
 		// entityMap := make(map[string]any)
-		entityMap = row
+		currentRow := row
 
 		// 合并entityMap到entity - 使用snake_case字段名
-		for k, v := range entityMap {
+		for k, v := range currentRow {
 			entity[k] = v
 		}
 		entity["operation"] = operation
 		entity["action"] = operationInfo["action"]
 		entity["send_status"] = 0
-		entity["entity_id"] = entityMap["id"]
+		entity["entity_id"] = currentRow["id"]
 		entity["id"] = nil
 		entity["approval_code"] = approvalCode
 		entity["draft_status"] = "Pending"
@@ -3188,7 +3755,14 @@ func (s *approvalService) UpdateByIdsWithApproval(c *gin.Context, tableCode, rea
 	s.logger.Debug("service UpdateByIdsWithApproval", "approvalInfo", approvalInfo)
 	// return s.UpdateApprovalFlow(c, map[string]string{"tableCode": tableCode}, approvalInfo)
 	// return s.UpdateApprovalFlow(c, tableCode, approvalInfo)
-	return s.CreateApprovalFlow(c, tableCode, approvalInfo)
+	// 将 ids 转换为 []any 并放入 entityMap，供 createFeishuInstanceFromInfo 使用
+	idsAny := make([]any, len(ids))
+	for i, v := range ids {
+		idsAny[i] = v
+	}
+	entityMap["ids"] = idsAny
+
+	return s.CreateApprovalFlow(c, tableCode, approvalInfo, entityMap)
 }
 
 // func (s *approvalService) UpdateApprovalFlow(c *gin.Context, tableCode, approvalInfo map[string]string) error {
@@ -3230,7 +3804,32 @@ func (s *approvalService) ImportWithApproval(c *gin.Context, tableCode, reason, 
 	tableCodeDraft := fmt.Sprintf("%s_draft", tableCode)
 	s.logger.Debug("s ImportWithApproval1: ", "tableCodeDraft", tableCodeDraft)
 
+	// Fetch field definitions for type mapping
+	fieldWhere := map[string]any{"table_code": tableCode} // Use existing tableCode
+	// Query both FieldType (UI) and Type (DB)
+	tFields, err := s.tableFieldService.Find("code,field_type,type", fieldWhere)
+	if err != nil {
+		s.logger.Error("ImportWithApproval: fetch fields failed", "err", err)
+		return err
+	}
+
+	// Map field code to both types
+	fieldTypeMap := make(map[string]struct {
+		uiType string
+		dbType string
+	})
+
+	for _, f := range tFields {
+		fieldTypeMap[f.Code] = struct{ uiType, dbType string }{
+			uiType: f.FieldType,
+			dbType: f.Type,
+		}
+	}
+
+	s.logger.Debug("ImportWithApproval - FieldTypeMap", "count", len(fieldTypeMap), "sample", fmt.Sprintf("%v", tFields[0]))
+
 	var fields []string
+	var importedRecords []any
 	// 保存到草稿箱，并提交审批流
 	for irow, row := range rows {
 		// 生成entity struce iterface
@@ -3240,16 +3839,60 @@ func (s *approvalService) ImportWithApproval(c *gin.Context, tableCode, reason, 
 			fields = append(fields, row...)
 		} else {
 			for index, cell := range row {
-				// 解决编码从文本转到unit
-				if fields[index] == "ID" {
-					if num, err := strconv.Atoi(cell); err != nil {
-						entityMap[fields[index]] = cell
-					} else {
-						entityMap[fields[index]] = num
-					}
-				} else {
-					entityMap[fields[index]] = cell
+				if index >= len(fields) {
+					break
 				}
+				fieldCode := fields[index]
+
+				// 解决编码从文本转到unit
+				if fieldCode == "ID" || fieldCode == "id" {
+					if num, err := strconv.Atoi(cell); err == nil {
+						entityMap[fieldCode] = num
+						continue
+					}
+				}
+
+				// Handle empty strings based on field type
+				if cell == "" {
+					if types, ok := fieldTypeMap[fieldCode]; ok {
+						uiType := strings.ToLower(types.uiType)
+						dbType := strings.ToLower(types.dbType)
+
+						// Check both UI type and DB type for indicators of numeric/date values
+						isDateOrNum := false
+						if strings.Contains(uiType, "date") ||
+							strings.Contains(uiType, "time") ||
+							strings.Contains(uiType, "int") ||
+							strings.Contains(uiType, "number") ||
+							strings.Contains(uiType, "decimal") ||
+							strings.Contains(uiType, "float") ||
+							strings.Contains(uiType, "double") {
+							isDateOrNum = true
+						}
+
+						if !isDateOrNum {
+							if strings.Contains(dbType, "date") ||
+								strings.Contains(dbType, "time") ||
+								strings.Contains(dbType, "int") ||
+								strings.Contains(dbType, "decimal") ||
+								strings.Contains(dbType, "float") ||
+								strings.Contains(dbType, "double") {
+								isDateOrNum = true
+							}
+						}
+
+						if isDateOrNum {
+							entityMap[fieldCode] = nil
+							continue
+						}
+					} else {
+						// Only log if it's not a known system/ignored field or likely header mismatch
+						// But honestly, fields in Excel not in DB is normal if template is old or changed.
+						// s.logger.Warn("ImportWithApproval: field not found in definitions", "field", fieldCode, "table", tableCode)
+					}
+				}
+
+				entityMap[fieldCode] = cell
 			}
 
 			// If this is an update operation, check for existing active draft
@@ -3285,9 +3928,21 @@ func (s *approvalService) ImportWithApproval(c *gin.Context, tableCode, reason, 
 			entity["created_by"] = "jasen"
 			s.logger.Debug("s ImportWithApproval2: ", "entity", entity)
 
+			// 生成自动编码字段 (使用 Draft 表名)
+			// Fix: 使用主表名查找配置，但写入 entity (将会存入 draft 表)
+			// 这里的 entityMap 是 draft 的数据，但字段名应该和主表一致
+			// 注意: 我们传入 tableCode (主表) 给 generateAutocodes 来查找配置
+			if err := s.generateAutocodes(c, tableCode, entity); err != nil {
+				return err
+			}
+
 			if err := s.entityRepository.Create(c, tableCodeDraft, entity); err != nil {
 				return err
 			}
+
+			// Add to imported records for approval summary
+			// Fix: Use entity instead of entityMap to ensure we have generated/restored fields
+			importedRecords = append(importedRecords, entity)
 		}
 	}
 
@@ -3300,7 +3955,11 @@ func (s *approvalService) ImportWithApproval(c *gin.Context, tableCode, reason, 
 	approvalInfo["reason"] = reason
 	approvalInfo["entityCode"] = tableCode
 
-	return s.CreateApprovalFlow(c, tableCode, approvalInfo)
+	// Pass records for Feishu summary logic
+	formData := map[string]any{
+		"records": importedRecords,
+	}
+	return s.CreateApprovalFlow(c, tableCode, approvalInfo, formData)
 }
 
 // CheckExistingActiveDraft 检查是否存在处于审批中的草稿
@@ -3407,6 +4066,10 @@ func (s *approvalService) StartApprovalFlow(c *gin.Context, approvalDefCode, app
 
 	// 生成审批实例
 	uuid := uuid.New()
+
+	// 强制统一格式：审批定义名称-新建 (忽略入参 title)
+	title = fmt.Sprintf("%s-新建", approvalDef.Name)
+
 	approval := &model.Approval{
 		Code:            strings.ToUpper(uuid.String()),
 		Title:           title,
@@ -3414,9 +4077,10 @@ func (s *approvalService) StartApprovalFlow(c *gin.Context, approvalDefCode, app
 		SerialNumber:    s.generateSerialNumberFlow(),
 		FormData:        formData,
 		Status:          model.ApprovalStatusPending,
-		// ApplicantID:     applicantID,
-		Priority: 0,
-		Urgency:  "Normal",
+		CreatedBy:       applicantID,
+		UpdatedBy:       applicantID,
+		Priority:        0,
+		Urgency:         "Normal",
 	}
 
 	if err := s.approvalRepository.Create(c, approval); err != nil {
@@ -4876,4 +5540,9 @@ func (s *approvalService) validateApproval(c *gin.Context, approval *model.Appro
 		return errors.New("审批定义编码不能为空")
 	}
 	return nil
+}
+
+// generateAutocodes 为 autocode 类型的字段生成编码
+func (s *approvalService) generateAutocodes(c *gin.Context, tableCode string, entityMap map[string]any) error {
+	return s.autocodeService.GenerateOrRestoreAutocodes(c, tableCode, entityMap, s.tableFieldService, s.entityRepository, s.logger)
 }

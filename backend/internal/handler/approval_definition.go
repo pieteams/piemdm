@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"piemdm/internal/model"
-	"piemdm/internal/transport/request"
 	"piemdm/internal/service"
+	"piemdm/internal/transport/request"
 	"piemdm/pkg/helper/resp"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +33,7 @@ type ApprovalDefinitionHandler interface {
 	GetVersions(c *gin.Context)
 	CreateVersion(c *gin.Context)
 	Validate(c *gin.Context)
+	SyncFeishu(c *gin.Context)
 }
 
 type approvalDefinitionHandler struct {
@@ -332,7 +333,7 @@ func (h *approvalDefinitionHandler) BatchDelete(c *gin.Context) {
 // @Produce json
 // @Param code path string true "审批定义编码"
 // @Success 200 {object} model.ApprovalDefinition
-// @Router /api/v1/approval-defs/code/{code} [get]
+// @Router /api/v1/approval_defs/code/{code} [get]
 func (h *approvalDefinitionHandler) GetByCode(c *gin.Context) {
 	code := c.Param("code")
 	if code == "" {
@@ -576,5 +577,34 @@ func (h *approvalDefinitionHandler) Validate(c *gin.Context) {
 	resp.HandleSuccess(c, gin.H{
 		"valid":   true,
 		"message": "验证通过",
+	})
+}
+
+// SyncFeishu 同步飞书审批定义
+// @Summary 同步飞书审批定义 (表单)
+// @Tags 审批定义
+// @Accept json
+// @Produce json
+// @Param code query string true "审批定义编码 (飞书中的 Approval Code)"
+// @Success 200 {object} map[string]string
+// @Router /api/v1/approval-defs/sync-feishu [post]
+func (h *approvalDefinitionHandler) SyncFeishu(c *gin.Context) {
+	var req struct {
+		Code string `json:"code" form:"code" binding:"required"`
+	}
+	if err := c.ShouldBind(&req); err != nil {
+		resp.HandleError(c, http.StatusBadRequest, err.Error(), nil)
+		return
+	}
+
+	content, err := h.approvalDefinitionService.SyncFeishuDefinition(req.Code)
+	if err != nil {
+		h.logger.Error("同步飞书审批定义失败", "error", err, "code", req.Code)
+		resp.HandleError(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	resp.HandleSuccess(c, gin.H{
+		"form_data": content,
 	})
 }

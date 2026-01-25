@@ -10,7 +10,9 @@ import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"piemdm/internal/auth/casbin"
+	"piemdm/internal/configs"
 	"piemdm/internal/handler"
+	"piemdm/internal/integration/feishu"
 	"piemdm/internal/repository"
 	"piemdm/internal/router"
 	"piemdm/internal/service"
@@ -46,7 +48,9 @@ func newApp(viperViper *viper.Viper, logger *log.Logger) (*router.Server, func()
 	approvalTaskService := service.NewApprovalTaskService(serviceService, approvalTaskRepository, approvalRepository)
 	approvalDefinitionRepository := repository.NewApprovalDefinitionRepository(repositoryRepository, base)
 	approvalNodeRepository := repository.NewApprovalNodeRepository(repositoryRepository, base)
-	approvalDefinitionService := service.NewApprovalDefinitionService(serviceService, approvalDefinitionRepository, approvalNodeRepository)
+	feishuConfig := provideFeishuConfig(viperViper)
+	feishuService := feishu.NewService(feishuConfig, logger)
+	approvalDefinitionService := service.NewApprovalDefinitionService(serviceService, approvalDefinitionRepository, approvalNodeRepository, feishuService)
 	approvalNodeService := service.NewApprovalNodeService(serviceService, approvalNodeRepository, approvalDefinitionRepository)
 	entityLogRepository := repository.NewEntityLogRepository(repositoryRepository, base)
 	entityLogService := service.NewEntityLogService(serviceService, entityLogRepository)
@@ -56,8 +60,8 @@ func newApp(viperViper *viper.Viper, logger *log.Logger) (*router.Server, func()
 	globalIdService := service.NewGlobalIdService(serviceService, globalIdRepository)
 	userRepository := repository.NewUserRepository(repositoryRepository, base)
 	notificationService := notification.NewNotificationServiceProvider(viperViper, logger)
-	approvalService := service.NewApprovalService(serviceService, approvalRepository, approvalTaskService, approvalDefinitionService, approvalNodeService, entityRepository, tableFieldService, entityLogService, webhookService, tableFieldRepository, approvalDefinitionRepository, tableApprovalDefinitionRepository, approvalNodeRepository, globalIdService, approvalTaskRepository, userRepository, notificationService)
 	autocodeService := service.NewAutocodeService(serviceService, globalIdService)
+	approvalService := service.NewApprovalService(serviceService, approvalRepository, approvalTaskService, approvalDefinitionService, approvalNodeService, entityRepository, tableFieldService, entityLogService, webhookService, tableFieldRepository, approvalDefinitionRepository, tableApprovalDefinitionRepository, approvalNodeRepository, globalIdService, approvalTaskRepository, userRepository, notificationService, feishuService, autocodeService)
 	tablePermissionRepository := repository.NewTablePermissionRepository(db)
 	userRoleRepository := repository.NewUserRoleRepository(db)
 	tablePermissionService := service.NewTablePermissionService(tablePermissionRepository, tableRepository, userRoleRepository)
@@ -112,8 +116,8 @@ func newApp(viperViper *viper.Viper, logger *log.Logger) (*router.Server, func()
 	openApiHandler := handler.NewOpenApiHandler(logger, entityService, entityRepository)
 	applicationEntityRepository := repository.NewApplicationEntityRepository(repositoryRepository, base)
 	applicationApiLogRepository := repository.NewApplicationApiLogRepository(repositoryRepository, base)
-	engine := router.NewServerHTTP(logger, jwtJWT, entityHandler, approvalHandler, approvalDefinitionHandler, approvalNodeHandler, approvalTaskHandler, tableHandler, tableFieldHandler, applicationHandler, webhookHandler, webhookDeliveryHandler, cronHandler, cronLogHandler, roleHandler, permissionHandler, userHandler, notificationHandler, notificationTemplateHandler, notificationLogHandler, tableApprovalDefinitionHandler, uploadHandler, tablePermissionHandler, openApiHandler, applicationRepository, applicationEntityRepository, applicationApiLogRepository, client, viperViper, enforcer)
-	server := router.NewServer(engine, notificationHandler)
+	engine := router.NewServerHTTP(logger, jwtJWT, entityHandler, approvalHandler, approvalService, approvalDefinitionHandler, approvalNodeHandler, approvalTaskHandler, tableHandler, tableFieldHandler, applicationHandler, webhookHandler, webhookDeliveryHandler, cronHandler, cronLogHandler, roleHandler, permissionHandler, userHandler, notificationHandler, notificationTemplateHandler, notificationLogHandler, tableApprovalDefinitionHandler, uploadHandler, tablePermissionHandler, openApiHandler, applicationRepository, applicationEntityRepository, applicationApiLogRepository, client, viperViper, enforcer)
+	server := router.NewServer(engine, notificationHandler, feishuService, approvalService)
 	return server, func() {
 	}, nil
 }
@@ -144,7 +148,9 @@ func newCronApp(viperViper *viper.Viper, logger *log.Logger) (*cron.Cron, func()
 	approvalTaskService := service.NewApprovalTaskService(serviceService, approvalTaskRepository, approvalRepository)
 	approvalDefinitionRepository := repository.NewApprovalDefinitionRepository(repositoryRepository, base)
 	approvalNodeRepository := repository.NewApprovalNodeRepository(repositoryRepository, base)
-	approvalDefinitionService := service.NewApprovalDefinitionService(serviceService, approvalDefinitionRepository, approvalNodeRepository)
+	feishuConfig := provideFeishuConfig(viperViper)
+	feishuService := feishu.NewService(feishuConfig, logger)
+	approvalDefinitionService := service.NewApprovalDefinitionService(serviceService, approvalDefinitionRepository, approvalNodeRepository, feishuService)
 	approvalNodeService := service.NewApprovalNodeService(serviceService, approvalNodeRepository, approvalDefinitionRepository)
 	entityLogRepository := repository.NewEntityLogRepository(repositoryRepository, base)
 	entityLogService := service.NewEntityLogService(serviceService, entityLogRepository)
@@ -153,8 +159,8 @@ func newCronApp(viperViper *viper.Viper, logger *log.Logger) (*cron.Cron, func()
 	globalIdRepository := repository.NewGlobalIdRepository(repositoryRepository, base)
 	globalIdService := service.NewGlobalIdService(serviceService, globalIdRepository)
 	notificationService := notification.NewNotificationServiceProvider(viperViper, logger)
-	approvalService := service.NewApprovalService(serviceService, approvalRepository, approvalTaskService, approvalDefinitionService, approvalNodeService, entityRepository, tableFieldService, entityLogService, webhookService, tableFieldRepository, approvalDefinitionRepository, tableApprovalDefinitionRepository, approvalNodeRepository, globalIdService, approvalTaskRepository, userRepository, notificationService)
 	autocodeService := service.NewAutocodeService(serviceService, globalIdService)
+	approvalService := service.NewApprovalService(serviceService, approvalRepository, approvalTaskService, approvalDefinitionService, approvalNodeService, entityRepository, tableFieldService, entityLogService, webhookService, tableFieldRepository, approvalDefinitionRepository, tableApprovalDefinitionRepository, approvalNodeRepository, globalIdService, approvalTaskRepository, userRepository, notificationService, feishuService, autocodeService)
 	tablePermissionRepository := repository.NewTablePermissionRepository(db)
 	tablePermissionService := service.NewTablePermissionService(tablePermissionRepository, tableRepository, userRoleRepository)
 	entityService := service.NewEntityService(serviceService, entityRepository, tableFieldService, tableFieldRepository, tableApprovalDefinitionRepository, approvalService, globalIdService, entityLogService, autocodeService, tablePermissionService, tableRepository, viperViper)
@@ -184,7 +190,9 @@ func newWebhookApp(viperViper *viper.Viper, logger *log.Logger) (*webhook.Webhoo
 	approvalTaskService := service.NewApprovalTaskService(serviceService, approvalTaskRepository, approvalRepository)
 	approvalDefinitionRepository := repository.NewApprovalDefinitionRepository(repositoryRepository, base)
 	approvalNodeRepository := repository.NewApprovalNodeRepository(repositoryRepository, base)
-	approvalDefinitionService := service.NewApprovalDefinitionService(serviceService, approvalDefinitionRepository, approvalNodeRepository)
+	feishuConfig := provideFeishuConfig(viperViper)
+	feishuService := feishu.NewService(feishuConfig, logger)
+	approvalDefinitionService := service.NewApprovalDefinitionService(serviceService, approvalDefinitionRepository, approvalNodeRepository, feishuService)
 	approvalNodeService := service.NewApprovalNodeService(serviceService, approvalNodeRepository, approvalDefinitionRepository)
 	entityLogRepository := repository.NewEntityLogRepository(repositoryRepository, base)
 	entityLogService := service.NewEntityLogService(serviceService, entityLogRepository)
@@ -192,8 +200,8 @@ func newWebhookApp(viperViper *viper.Viper, logger *log.Logger) (*webhook.Webhoo
 	globalIdService := service.NewGlobalIdService(serviceService, globalIdRepository)
 	userRepository := repository.NewUserRepository(repositoryRepository, base)
 	notificationService := notification.NewNotificationServiceProvider(viperViper, logger)
-	approvalService := service.NewApprovalService(serviceService, approvalRepository, approvalTaskService, approvalDefinitionService, approvalNodeService, entityRepository, tableFieldService, entityLogService, webhookService, tableFieldRepository, approvalDefinitionRepository, tableApprovalDefinitionRepository, approvalNodeRepository, globalIdService, approvalTaskRepository, userRepository, notificationService)
 	autocodeService := service.NewAutocodeService(serviceService, globalIdService)
+	approvalService := service.NewApprovalService(serviceService, approvalRepository, approvalTaskService, approvalDefinitionService, approvalNodeService, entityRepository, tableFieldService, entityLogService, webhookService, tableFieldRepository, approvalDefinitionRepository, tableApprovalDefinitionRepository, approvalNodeRepository, globalIdService, approvalTaskRepository, userRepository, notificationService, feishuService, autocodeService)
 	tablePermissionRepository := repository.NewTablePermissionRepository(db)
 	userRoleRepository := repository.NewUserRoleRepository(db)
 	tablePermissionService := service.NewTablePermissionService(tablePermissionRepository, tableRepository, userRoleRepository)
@@ -210,9 +218,19 @@ func newWebhookApp(viperViper *viper.Viper, logger *log.Logger) (*webhook.Webhoo
 
 // wire.go:
 
+// provideFeishuConfig provides FeishuConfig from viper
+func provideFeishuConfig(v *viper.Viper) configs.FeishuConfig {
+	var cfg configs.Config
+	if err := v.Unmarshal(&cfg); err != nil {
+
+		return configs.FeishuConfig{}
+	}
+	return cfg.Integrations.Feishu
+}
+
 var HandlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewApprovalHandler, handler.NewApprovalDefinitionHandler, handler.NewApprovalNodeHandler, handler.NewApprovalTaskHandler, handler.NewTableHandler, handler.NewTableFieldHandler, handler.NewApplicationHandler, handler.NewWebhookHandler, handler.NewWebhookDeliveryHandler, handler.NewCronHandler, handler.NewCronLogHandler, handler.NewEntityHandler, handler.NewRoleHandler, handler.NewPermissionHandler, handler.NewNotificationHandler, handler.NewNotificationTemplateHandler, handler.NewNotificationLogHandler, handler.NewTableApprovalDefinitionHandler, handler.NewUploadHandler, handler.NewTablePermissionHandler, handler.NewOpenApiHandler)
 
-var ServiceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewApprovalService, service.NewApprovalDefinitionService, service.NewApprovalNodeService, service.NewApprovalTaskService, service.NewTableService, service.NewTableFieldService, service.NewApplicationService, service.NewWebhookService, service.NewWebhookDeliveryService, service.NewCronService, service.NewCronLogService, service.NewCronParamService, service.NewEntityService, service.NewEntityLogService, service.NewGlobalIdService, service.NewRoleService, service.NewPermissionService, service.NewNotificationService, service.NewNotificationTemplateService, service.NewNotificationLogService, service.NewTableApprovalDefinitionService, service.NewAutocodeService, service.NewUploadService, service.NewTablePermissionService, service.NewOpenApiAuthService, service.NewApplicationApiLogService)
+var ServiceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewApprovalService, service.NewApprovalDefinitionService, service.NewApprovalNodeService, service.NewApprovalTaskService, service.NewTableService, service.NewTableFieldService, service.NewApplicationService, service.NewWebhookService, service.NewWebhookDeliveryService, service.NewCronService, service.NewCronLogService, service.NewCronParamService, service.NewEntityService, service.NewEntityLogService, service.NewGlobalIdService, service.NewRoleService, service.NewPermissionService, service.NewNotificationService, service.NewNotificationTemplateService, service.NewNotificationLogService, service.NewTableApprovalDefinitionService, service.NewAutocodeService, service.NewUploadService, service.NewTablePermissionService, service.NewOpenApiAuthService, service.NewApplicationApiLogService, provideFeishuConfig, feishu.NewService)
 
 var RepositorySet = wire.NewSet(repository.NewDB, repository.NewRedis, repository.NewRepository, repository.NewBaseRepository, repository.NewUserRepository, repository.NewApprovalRepository, repository.NewApprovalDefinitionRepository, repository.NewApprovalNodeRepository, repository.NewApprovalTaskRepository, repository.NewTableRepository, repository.NewTableFieldRepository, repository.NewApplicationRepository, repository.NewWebhookRepository, repository.NewWebhookDeliveryRepository, repository.NewCronRepository, repository.NewCronParamRepository, repository.NewCronLogRepository, repository.NewEntityRepository, repository.NewEntityLogRepository, repository.NewGlobalIdRepository, repository.NewRoleRepository, repository.NewPermissionRepository, repository.NewNotificationTemplateRepository, repository.NewNotificationLogRepository, repository.NewTableApprovalDefinitionRepository, repository.NewTablePermissionRepository, repository.NewUserRoleRepository, repository.NewApplicationApiLogRepository, repository.NewApplicationEntityRepository)
 

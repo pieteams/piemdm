@@ -7,11 +7,13 @@ import (
 )
 
 type ApprovalTask struct {
-	ID           uint   `gorm:"primarykey"`
-	TaskCode     string `gorm:"size:128;unique"`                                    // 任务唯一编码
-	ApprovalCode string `gorm:"size:128;not null;index" binding:"required,max=128"` // 审批实例编码
-	NodeCode     string `gorm:"size:128;index" binding:"max=128"`                   // 节点编码
-	NodeName     string `gorm:"size:128" binding:"max=128"`                         // 节点名称
+	ID             uint   `gorm:"primarykey"`
+	TaskCode       string `gorm:"size:128;unique"`                                    // 任务唯一编码
+	ApprovalCode   string `gorm:"size:128;not null;index" binding:"required,max=128"` // 审批实例编码
+	NodeCode       string `gorm:"size:128;index" binding:"max=128"`                   // 节点编码
+	NodeName       string `gorm:"size:128" binding:"max=128"`                         // 节点名称
+	ExternalTaskID string `gorm:"size:128;index"`                                     // 外部审批任务ID
+
 	// node_type,approver_type,approver_config 三个字段暂时没有用
 	// 节点类型：START/APPROVAL/CONDITION/CC/END/PARALLEL/MERGE
 	NodeType string `gorm:"size:16" binding:"max=16"` // 节点类型

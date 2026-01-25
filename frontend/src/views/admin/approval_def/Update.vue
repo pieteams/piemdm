@@ -22,7 +22,7 @@
 
 <script setup>
 import {
-  findApprovalDef,
+  getApprovalDef,
   // createApprovalDef,
   // deleteApprovalDef,
   updateApprovalDef,
@@ -74,7 +74,7 @@ onMounted(() => {
 
 const getApprovalDefInfo = async () => {
   const params = router.currentRoute.value.query;
-  const res = await findApprovalDef({
+  const res = await getApprovalDef({
     id: params.id,
   });
   dataInfo.value = res.data;

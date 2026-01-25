@@ -26,7 +26,7 @@ func setupApprovalDefService(t *testing.T) (service.ApprovalDefinitionService, *
 
 	baseService := service.NewService(logger, &sid.Sid{}, &jwt.JWT{})
 
-	approvalDefService := service.NewApprovalDefinitionService(baseService, mockDefRepo, mockNodeRepo)
+	approvalDefService := service.NewApprovalDefinitionService(baseService, mockDefRepo, mockNodeRepo, nil)
 	return approvalDefService, mockDefRepo, mockNodeRepo, ctrl
 }
 

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"piemdm/internal/model"
@@ -63,7 +62,7 @@ func (h *webhookHandler) List(c *gin.Context) {
 	}
 	page := req.Page
 	pageSize := req.PageSize
-	fmt.Printf("page, pageSize: %d, %d\n", page, pageSize)
+
 	where := make(map[string]any)
 	var total int64
 
