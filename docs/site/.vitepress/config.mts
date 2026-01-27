@@ -1,4 +1,4 @@
-import { DefaultTheme, defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     title: 'PIE MDM',
@@ -8,6 +8,10 @@ export default defineConfig({
         hostname: 'https://pieworks.github.io/piemdm/'
     },
     cleanUrls: true,
+    ignoreDeadLinks: [
+        /^\/sdk\//,
+        /localhost/,
+    ],
     head: [
         ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LBRJN3MR40' }],
         ['script', {}, `

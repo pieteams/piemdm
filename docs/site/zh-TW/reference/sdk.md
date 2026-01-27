@@ -8,10 +8,10 @@
 
 | 編程語言 | 下載鏈接 | 說明 |
 | :--- | :--- | :--- |
-| **Go** | [piemdm_openapi.go](/piemdm/sdk/go/piemdm_openapi.go) | 基於 `net/http` 標準庫實現 |
-| **Java** | [PiemdmOpenApi.java](/piemdm/sdk/java/PiemdmOpenApi.java) | 單文件實現，依賴標準 HTTP 庫 |
-| **PHP** | [PiemdmOpenApi.php](/piemdm/sdk/php/PiemdmOpenApi.php) | 原生 PHP 實現，兼容 7.x/8.x |
-| **JavaScript** | [piemdm-openapi.js](/piemdm/sdk/javascript/piemdm-openapi.js) | 適用於 Node.js 和瀏覽器環境 |
+| **Go** | [piemdm_openapi.go](/sdk/go/piemdm_openapi.go) | 基於 `net/http` 標準庫實現 |
+| **Java** | [PiemdmOpenApi.java](/sdk/java/PiemdmOpenApi.java) | 單文件實現，依賴標準 HTTP 庫 |
+| **PHP** | [PiemdmOpenApi.php](/sdk/php/PiemdmOpenApi.php) | 原生 PHP 實現，兼容 7.x/8.x |
+| **JavaScript** | [piemdm-openapi.js](/sdk/javascript/piemdm-openapi.js) | 適用於 Node.js 和瀏覽器環境 |
 
 > [!TIP]
 > **關於 Go 獲取方式**：

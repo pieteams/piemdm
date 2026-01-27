@@ -8,10 +8,10 @@ You can directly download the SDK source files for the following languages and i
 
 | Language | Download Link | Description |
 | :--- | :--- | :--- |
-| **Go** | [piemdm_openapi.go](/piemdm/sdk/go/piemdm_openapi.go) | Based on `net/http` standard library |
-| **Java** | [PiemdmOpenApi.java](/piemdm/sdk/java/PiemdmOpenApi.java) | Single file implementation, depends on standard HTTP library |
-| **PHP** | [PiemdmOpenApi.php](/piemdm/sdk/php/PiemdmOpenApi.php) | Native PHP implementation, compatible with 7.x/8.x |
-| **JavaScript** | [piemdm-openapi.js](/piemdm/sdk/javascript/piemdm-openapi.js) | Suitable for Node.js and browser environments |
+| **Go** | [piemdm_openapi.go](/sdk/go/piemdm_openapi.go) | Based on `net/http` standard library |
+| **Java** | [PiemdmOpenApi.java](/sdk/java/PiemdmOpenApi.java) | Single file implementation, depends on standard HTTP library |
+| **PHP** | [PiemdmOpenApi.php](/sdk/php/PiemdmOpenApi.php) | Native PHP implementation, compatible with 7.x/8.x |
+| **JavaScript** | [piemdm-openapi.js](/sdk/javascript/piemdm-openapi.js) | Suitable for Node.js and browser environments |
 
 > [!TIP]
 > **About Go Retrieval**:
