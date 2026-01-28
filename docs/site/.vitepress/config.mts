@@ -8,6 +8,7 @@ export default defineConfig({
         hostname: 'https://pieteams.github.io/piemdm/'
     },
     cleanUrls: true,
+    lastUpdated: true,
     ignoreDeadLinks: [
         /^\/sdk\//,
         /localhost/,
