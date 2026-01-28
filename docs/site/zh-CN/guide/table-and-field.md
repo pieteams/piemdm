@@ -1,3 +1,13 @@
+---
+head:
+  - - meta
+    - name: description
+      content: 表与字段管理
+  - - meta
+    - name: keywords
+      content: 主数据,MDM,PieMDM,开源,Go,Vue,Docker
+---
+
 # 表与字段管理
 
 PieMDM 允许管理员根据业务需求自定义数据模型。通过“表与字段管理”，您可以定义主数据实体及其属性。
