@@ -52,7 +52,7 @@ Thank you for your interest in contributing to PieMDM! This document provides gu
 2. **Set up backend**:
 
    ```bash
-   cd api
+   cd backend
    make init
    cp config/local.yml.example config/local.yml
    # Edit config/local.yml with your database settings
@@ -62,7 +62,7 @@ Thank you for your interest in contributing to PieMDM! This document provides gu
 3. **Set up frontend**:
 
    ```bash
-   cd web
+   cd frontend
    npm install
    npm run dev
    ```
@@ -151,7 +151,7 @@ docker-compose logs -f
 ### Backend Testing
 
 ```bash
-cd api
+cd backend
 
 # Run all tests
 make test
@@ -169,7 +169,7 @@ make mock
 ### Frontend Testing
 
 ```bash
-cd web
+cd frontend
 
 # Run unit tests
 npm run test
@@ -252,14 +252,14 @@ When creating a PR, please include:
 
 ```
 piemdm/
-├── api/                    # Backend Go application
+├── backend/               # Backend Go application
 │   ├── cmd/               # Application entry points
 │   ├── internal/          # Private application code
 │   ├── pkg/               # Public packages
 │   ├── config/            # Configuration files
 │   ├── scripts/           # Build and deployment scripts
 │   └── test/              # Test files
-├── web/                   # Frontend Vue.js application
+├── frontend/              # Frontend Vue.js application
 │   ├── src/               # Source code
 │   ├── public/            # Static assets
 │   └── config/            # Configuration files
