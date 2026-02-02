@@ -51,8 +51,7 @@ jobs:
         working-directory: backend
         run: make swagger
 
-      - name: Install frontend dependencies
-        working-directory: frontend
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Generate TypeScript API client

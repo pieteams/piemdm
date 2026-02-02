@@ -55,9 +55,12 @@ jobs:
           version: 10
 
       - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workflow-vue package
         run: |
-          cd frontend
-          pnpm install --frozen-lockfile
+          cd packages/web/workflow-vue
+          pnpm build
 
       - name: Run frontend tests
         run: |
