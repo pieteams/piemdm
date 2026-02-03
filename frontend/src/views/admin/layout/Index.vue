@@ -2,33 +2,30 @@
   <nav class="navbar navbar-expand-lg border-bottom border-body fixed-top" style="background-color: #e3f2fd"
     data-bs-theme="light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-        <img src="@/assets/piemdm.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top" />
-        PieMDM
-      </a>
-      <div class="bd-navbar-toggle">
-        <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#bdSidebar"
-          aria-controls="bdSidebar" aria-label="Toggle docs navigation">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="bi" fill="currentColor"
-            viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-              d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z">
-            </path>
-          </svg>
-
-          <span class="d-none fs-6 pe-1">Browse</span>
-        </button>
+      <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="#">
+          <img src="@/assets/piemdm.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top" />
+          PieMDM
+        </a>
+        <div class="bd-navbar-toggle d-md-none ms-2">
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
+            aria-controls="sidebarMenu" aria-label="Toggle sidebar navigation">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="bi" fill="currentColor"
+              viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z">
+              </path>
+            </svg>
+            <span class="d-none fs-6 pe-1">Browse</span>
+          </button>
+        </div>
       </div>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+        aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
     </div>
-
-    <button class="navbar-toggler ml-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-      <span class="navbar-toggler-icon"></span>
-    </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav gap-2">
         <li class="nav-item">
