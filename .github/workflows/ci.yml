@@ -7,35 +7,57 @@ on:
       - 'docs/site/**'
   pull_request:
     branches: [ main ]
-    paths-ignore:
-      - 'docs/site/**'
+    # 移除 paths-ignore，让 workflow 始终运行，在步骤级别根据路径条件执行
 
 jobs:
   test-backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 需要完整历史记录来检测文件变更
+
+      - name: Check if backend files changed
+        id: backend-changed
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '!docs/site/**'
+          list-files: shell
+
+      - name: Skip if only docs changed
+        if: steps.backend-changed.outputs.backend != 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "⏭️  Only documentation files changed, skipping backend tests"
+          exit 0
 
       - uses: actions/setup-go@v5
+        if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
         with:
           go-version: '1.24.12'
           cache: true
           cache-dependency-path: backend/go.sum
 
       - name: Install Swag
+        if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
         run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Generate Swagger documentation
+        if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
         working-directory: backend
         run: make swagger
 
       - name: Run backend tests
+        if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
         run: |
           cd backend
           go mod download
           go test -v -coverprofile=coverage.out ./...
 
       - name: Upload coverage
+        if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
         uses: codecov/codecov-action@v3
         with:
           file: backend/coverage.out
@@ -45,29 +67,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 需要完整历史记录来检测文件变更
+
+      - name: Check if frontend files changed
+        id: frontend-changed
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - 'packages/web/**'
+              - '!docs/site/**'
+          list-files: shell
+
+      - name: Skip if only docs changed
+        if: steps.frontend-changed.outputs.frontend != 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "⏭️  Only documentation files changed, skipping frontend tests"
+          exit 0
 
       - uses: actions/setup-node@v4
+        if: steps.frontend-changed.outputs.frontend == 'true' || github.event_name == 'push'
         with:
           node-version: '20'
 
       - uses: pnpm/action-setup@v4
+        if: steps.frontend-changed.outputs.frontend == 'true' || github.event_name == 'push'
         with:
           version: 10
 
       - name: Install dependencies
+        if: steps.frontend-changed.outputs.frontend == 'true' || github.event_name == 'push'
         run: pnpm install --frozen-lockfile
 
       - name: Build workflow-vue package
+        if: steps.frontend-changed.outputs.frontend == 'true' || github.event_name == 'push'
         run: |
           cd packages/web/workflow-vue
           pnpm build
 
       - name: Run frontend tests
+        if: steps.frontend-changed.outputs.frontend == 'true' || github.event_name == 'push'
         run: |
           cd frontend
           pnpm test
 
       - name: Build frontend
+        if: steps.frontend-changed.outputs.frontend == 'true' || github.event_name == 'push'
         run: |
           cd frontend
           pnpm build

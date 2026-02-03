@@ -5,6 +5,9 @@ on:
     branches: [ main ]
     paths:
       - 'docs/site/**'
+  pull_request:
+    branches: [ main ]
+    # 移除 paths 限制，让 workflow 始终运行，在步骤级别根据路径条件执行
 
 permissions:
   contents: write
@@ -17,19 +20,39 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check if docs files changed
+        id: docs-changed
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            docs:
+              - 'docs/site/**'
+          list-files: shell
+
+      - name: Skip if only code changed
+        if: steps.docs-changed.outputs.docs != 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "⏭️  Only code files changed, skipping docs build"
+          exit 0
+
       - uses: actions/setup-node@v4
+        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
         with:
           node-version: '20.10.0'
 
       - uses: pnpm/action-setup@v3
+        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
         with:
           version: 10.14.0
 
-      - run: |
+      - name: Install dependencies and build
+        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
+        run: |
           pnpm install
           pnpm --filter piemdm-docs run docs:build
 
       - name: Deploy
+        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
