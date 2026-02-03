@@ -1,11 +1,15 @@
 import { defineConfig } from 'vitepress'
+import { readFileSync, writeFileSync } from 'fs'
+import { join } from 'path'
 
 export default defineConfig({
     title: 'PIE MDM',
     description: 'Master Data Management(MDM) Platform',
     base: '/piemdm/',
     sitemap: {
-        hostname: 'https://pieteams.github.io/piemdm/'
+        hostname: 'https://pieteams.github.io/piemdm/',
+        // 确保 lastmod 日期格式正确
+        lastmodDateOnly: false
     },
     cleanUrls: true,
     lastUpdated: true,
@@ -341,6 +345,44 @@ export default defineConfig({
                     ],
                 }
             }
+        }
+    },
+    buildEnd: async (siteConfig) => {
+        // 格式化 sitemap.xml 以提高可读性和 Google 解析成功率
+        const sitemapPath = join(siteConfig.outDir, 'sitemap.xml')
+        try {
+            let xml = readFileSync(sitemapPath, 'utf-8')
+            
+            // 使用更可靠的 XML 格式化方法
+            // 1. 在每个标签之间添加换行
+            xml = xml.replace(/></g, '>\n<')
+            
+            // 2. 添加适当的缩进
+            const lines = xml.split('\n')
+            let indentLevel = 0
+            const formatted = lines.map(line => {
+                const trimmed = line.trim()
+                if (!trimmed) return ''
+                
+                // 减少缩进级别（在闭合标签之前）
+                if (trimmed.startsWith('</')) {
+                    indentLevel = Math.max(0, indentLevel - 1)
+                }
+                
+                const indented = '  '.repeat(indentLevel) + trimmed
+                
+                // 增加缩进级别（在开放标签之后，但不是自闭合标签）
+                if (trimmed.startsWith('<') && !trimmed.startsWith('</') && !trimmed.endsWith('/>') && !trimmed.startsWith('<?')) {
+                    indentLevel++
+                }
+                
+                return indented
+            }).filter(line => line.trim()).join('\n')
+            
+            writeFileSync(sitemapPath, formatted + '\n', 'utf-8')
+            console.log('✓ Sitemap.xml formatted successfully')
+        } catch (error) {
+            console.warn('⚠ Could not format sitemap.xml:', error)
         }
     }
 })
