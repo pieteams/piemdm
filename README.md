@@ -37,6 +37,7 @@ PieMDM is a powerful and user-friendly open-source Master Data Management (MDM) 
 ```bash
 git clone https://github.com/pieteams/piemdm.git
 cd piemdm
+git config pull.rebase true
 ```
 
 ### 2. Backend Setup

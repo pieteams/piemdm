@@ -248,6 +248,32 @@ When creating a PR, please include:
 4. **Documentation review** for user-facing changes
 5. **Merge** after approval
 
+### Merge Strategy
+
+We use **Rebase and merge** as our preferred merge strategy to maintain a clean, linear commit history.
+
+**Why Rebase and merge?**
+- ✅ Keeps commit history linear and easy to read
+- ✅ Maintains clear attribution of changes
+- ✅ Works well with `git pull --rebase` for local branch alignment
+- ✅ Follows modern Git workflow best practices
+
+**For maintainers:**
+- When merging PRs, please use the **"Rebase and merge"** option
+- This will rebase the PR commits onto the base branch
+- Commit hashes will change after rebase (this is expected)
+
+**For contributors:**
+- Configure your local Git to use rebase when pulling:
+  ```bash
+  git config pull.rebase true
+  ```
+- This ensures your local branch stays aligned with the remote after merges
+
+**Alternative:** If rebase is not suitable for a specific PR, "Create a merge commit" is acceptable as a fallback option.
+
+For more details, see [Git Merge Strategy Guide](docs/git-merge-strategy.md).
+
 ## 🏗 Project Structure
 
 ```
