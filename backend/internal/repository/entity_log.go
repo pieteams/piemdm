@@ -53,7 +53,7 @@ func (r *entityLogRepository) FindPage(tableCode string, page, pageSize int, tot
 	// }
 
 	// if err := r.db.Model(entityLog).Where("deleted_at is null").Count(total).Error; err != nil {
-	// 	r.logger.Error("sys_apptoval repository count err", "err", err)
+	// 	r.logger.Error("entity_logs repository count err", "err", err)
 	// 	return nil, err
 	// }
 	preloads := []string{}

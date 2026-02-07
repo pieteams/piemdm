@@ -21,7 +21,9 @@ type Table struct {
 	// 父表关联字段
 	ParentField string `gorm:"size:64;" json:"ParentField" binding:"max=64"`
 	// 本表关联字段
-	SelfField   string `gorm:"size:64;" json:"SelfField" binding:"max=64"`
+	SelfField string `gorm:"size:64;" json:"SelfField" binding:"max=64"`
+	// 分类表Code,用于左树右表布局
+	TreeTable   string `gorm:"size:64;" json:"TreeTable" binding:"max=64"`
 	Sort        uint   `gorm:"size:10;default:0" binding:"max=9999"`
 	Description string `gorm:"size:255" binding:"max=255"`
 

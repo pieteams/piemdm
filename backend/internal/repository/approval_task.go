@@ -1,4 +1,4 @@
-//go:generate mockgen -source=approval_task_repository.go -destination=../../test/mocks/repository/sys_approval_task.go -package=mock_repository
+//go:generate mockgen -source=approval_task_repository.go -destination=../../test/mocks/repository/approval_task.go -package=mock_repository
 
 package repository
 

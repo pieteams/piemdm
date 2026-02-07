@@ -65,7 +65,7 @@ func (r *cronParamRepository) FindPage(page, pageSize int, total *int64, where m
 	// }
 
 	// if err := r.db.Model(cronParam).Where("deleted_at is null").Count(total).Error; err != nil {
-	// 	r.logger.Error("sys_apptoval repository count err", "err", err)
+	// 	r.logger.Error("cron_params repository count err", "err", err)
 	// 	return nil, err
 	// }
 	preloads := []string{}

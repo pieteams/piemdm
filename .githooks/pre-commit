@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+
+if [[ "${branch}" == "main" || "${branch}" == "master" ]]; then
+  cat <<'EOF' >&2
+禁止在 main/master 分支上直接提交。
+
+建议做法：
+1) 从 main 切分支：git switch -c feat/xxx
+2) 在分支上提交，然后提 PR
+
+如需绕过（不推荐）：git commit --no-verify
+EOF
+  exit 1
+fi
+

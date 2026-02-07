@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 额外防线：即使有人用 --no-verify 绕过 pre-commit，
+# 这里也会阻止把提交推到远程 main/master。
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ "${remote_ref}" == "refs/heads/main" || "${remote_ref}" == "refs/heads/master" ]]; then
+    cat <<'EOF' >&2
+禁止 push 到远程 main/master 分支，请走 PR 流程。
+EOF
+    exit 1
+  fi
+done
+

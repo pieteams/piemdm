@@ -1,4 +1,4 @@
-//go:generate mockgen -source=approval_definition_service.go -destination=../../test/mocks/service/sys_approval_def.go -package=mock_service
+//go:generate mockgen -source=approval_definition_service.go -destination=../../test/mocks/service/approval_definition.go -package=mock_service
 package service
 
 import (

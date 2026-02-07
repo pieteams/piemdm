@@ -50,7 +50,7 @@ func (r *soleRepository) FindPage(page, pageSize int, total *int64, where map[st
 	// }
 
 	// if err := r.db.Model(cron).Where("deleted_at is null").Count(total).Error; err != nil {
-	// 	r.logger.Error("sys_apptoval repository count err", "err", err)
+	// 	r.logger.Error("roles repository count err", "err", err)
 	// 	return nil, err
 	// }
 	preloads := []string{}

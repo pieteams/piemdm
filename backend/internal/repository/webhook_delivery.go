@@ -47,7 +47,7 @@ func (r *webhookDeliveryRepository) FindPage(page, pageSize int, total *int64, w
 	// }
 
 	// if err := r.db.Model(webhookDelivery).Where("deleted_at is null").Count(total).Error; err != nil {
-	// 	r.logger.Error("sys_apptoval repository count err", "err", err)
+	// 	r.logger.Error("webhook_deliveries repository count err", "err", err)
 	// 	return nil, err
 	// }
 	preloads := []string{}
