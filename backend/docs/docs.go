@@ -7800,6 +7800,11 @@ const docTemplate = `{
                         "Item"
                     ]
                 },
+                "TreeTable": {
+                    "description": "分类表Code,用于左树右表布局",
+                    "type": "string",
+                    "maxLength": 64
+                },
                 "code": {
                     "description": "表名,英文",
                     "type": "string",

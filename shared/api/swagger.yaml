@@ -934,6 +934,10 @@ definitions:
         - Entity
         - Item
         type: string
+      TreeTable:
+        description: 分类表Code,用于左树右表布局
+        maxLength: 64
+        type: string
       code:
         description: 表名,英文
         maxLength: 64
