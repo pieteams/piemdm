@@ -57,6 +57,7 @@ func (m *Migrate) Run() error {
 		&model.Webhook{},
 		&model.TableApprovalDefinition{},
 		&model.ApplicationApiLog{},
+		&model.GlobalId{},
 	)
 	if err != nil {
 		return errors.Wrap(err, "Failed to auto migrate approval tables")
@@ -83,6 +84,13 @@ func (m *Migrate) Run() error {
 	notificationInit := NewInitNotificationData(m.db, m.logger)
 	if err := notificationInit.Run(); err != nil {
 		m.logger.Error("Failed to initialize notification data: " + err.Error())
+	}
+
+	// Initialize global id data
+	m.logger.Info("Starting global id data initialization...")
+	globalIdInit := NewInitGlobalIdData(m.db, m.logger)
+	if err := globalIdInit.Run(); err != nil {
+		m.logger.Error("Failed to initialize global id data: " + err.Error())
 	}
 
 	return nil
