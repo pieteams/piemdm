@@ -24,7 +24,8 @@ export default defineConfig({
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-LBRJN3MR40');
-    `]
+    `],
+        ['script', { async: '', src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3177606357477709', crossorigin: 'anonymous' }],
     ],
     themeConfig: {
         socialLinks: [
