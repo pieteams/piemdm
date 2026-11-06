@@ -33,7 +33,7 @@ export default defineConfig({
         ],
 
         footer: {
-            message: 'Released under the MIT License.',
+            message: 'Released under the MIT License. <a href="https://pieteams.github.io/privacy">Privacy Policy</a>',
             copyright: 'Copyright © 2019-present PieTeams'
         },
     },
@@ -58,6 +58,8 @@ export default defineConfig({
                         link: '/reference/open-api',
                         activeMatch: '/reference/',
                     },
+                    { text: 'PieTeams', link: 'https://pieteams.github.io/' },
+                    { text: 'Privacy', link: 'https://pieteams.github.io/privacy' },
                 ],
 
                 sidebar: {
@@ -162,6 +164,8 @@ export default defineConfig({
                         link: '/zh-CN/reference/open-api',
                         activeMatch: '/zh-CN/reference/',
                     },
+                    { text: 'PieTeams', link: 'https://pieteams.github.io/' },
+                    { text: 'Privacy Policy', link: 'https://pieteams.github.io/privacy' },
                 ],
                 sidebar: {
                     '/zh-CN/getting-started/': [
