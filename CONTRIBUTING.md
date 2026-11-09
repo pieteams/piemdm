@@ -250,29 +250,28 @@ When creating a PR, please include:
 
 ### Merge Strategy
 
-We use **Rebase and merge** as our preferred merge strategy to maintain a clean, linear commit history.
+We use **Squash and merge** as the only merge method. The default branch stays linear: one PR becomes one commit.
 
-**Why Rebase and merge?**
-- ✅ Keeps commit history linear and easy to read
-- ✅ Maintains clear attribution of changes
-- ✅ Works well with `git pull --rebase` for local branch alignment
-- ✅ Follows modern Git workflow best practices
+**Why squash?**
+- ✅ One PR one commit: `git revert <sha>` rolls back a whole change
+- ✅ Contributors do not need to rebase or clean up their history
+- ✅ `(#N)` keeps the commit linked to the PR, its review and its CI runs
+- ✅ A single commit cherry-picks to `release/*` without conflict noise
+
+**PR title becomes the commit subject:**
+- Format `<type>(<scope>)!: <subject>`; `type` is one of `feat`, `fix`, `docs`, `chore`, `ci`, `refactor`, `perf`
+- `scope` and `!` (breaking change) are optional
+- GitHub appends `(#N)` automatically; do not edit it out
+
+**PR body and commit text:** the squash body is the list of commit messages, so write each commit message to stand on its own. The PR description is not copied into the commit.
 
 **For maintainers:**
-- When merging PRs, please use the **"Rebase and merge"** option
-- This will rebase the PR commits onto the base branch
-- Commit hashes will change after rebase (this is expected)
+- Merge with **Squash and merge**, or `gh pr merge --squash`
+- Never push directly to `main`. The PR then shows Closed instead of Merged, and the issue link with `Closes #N` is not closed automatically
+- Merge commit and rebase are not used. A change that needs per-commit review is reviewed on the PR branch
 
 **For contributors:**
-- Configure your local Git to use rebase when pulling:
-  ```bash
-  git config pull.rebase true
-  ```
-- This ensures your local branch stays aligned with the remote after merges
-
-**Alternative:** If rebase is not suitable for a specific PR, "Create a merge commit" is acceptable as a fallback option.
-
-For more details, see [Git Merge Strategy Guide](docs/git-merge-strategy.md).
+- Work on a branch, keep the PR title correct, and do not worry about the number of commits
 
 ## 🏗 Project Structure
 

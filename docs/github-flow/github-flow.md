@@ -107,7 +107,7 @@ main 分支保护建议纳入的 Required status checks（以 GitHub 页面实�
 
 ```bash
 git clone git@github.com:pieteams/piemdm.git
-# 必须配置，否则本地无法对齐
+# 拉取用 rebase，本地不产生 merge commit
 git config pull.rebase true
 cd piemdm
 ```
@@ -116,12 +116,12 @@ cd piemdm
 
 ```bash
 git clone git@github.com:<your_github_username>/piemdm.git
-# 必须配置，否则本地无法对齐
+# 拉取用 rebase，本地不产生 merge commit
 git config pull.rebase true
 cd piemdm
 
 git remote add upstream git@github.com:pieteams/piemdm.git
-# 必须配置，否则本地无法对齐
+# 拉取用 rebase，本地不产生 merge commit
 git config pull.rebase true
 git remote -v
 ```
