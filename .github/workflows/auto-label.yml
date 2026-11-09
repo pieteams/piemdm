@@ -1,0 +1,39 @@
+name: Auto Label PR
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label:
+    # Fork PRs get a read-only GITHUB_TOKEN, so adding labels fails with
+    # "Resource not accessible by integration". Skipping is better than failing.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PR by title prefix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const prefixMap = {
+              'feat':     'feat',
+              'fix':      'fix',
+              'docs':     'docs',
+              'chore':    'chore',
+              'ci':       'ci',
+              'refactor': 'refactor',
+              'perf':     'perf',
+            };
+            const match = title.match(/^(\w+)(\([^)]*\))?!?:/);
+            const label = match ? prefixMap[match[1]] : null;
+            if (!label) return;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: [label],
+            });
