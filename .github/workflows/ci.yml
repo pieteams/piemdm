@@ -49,7 +49,7 @@ jobs:
 
       - name: Install swag
         if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
-        run: go install github.com/swaggo/swag/cmd/swag@v1.16.4
+        run: go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
       - name: Generate Swagger documentation
         if: steps.backend-changed.outputs.backend == 'true' || github.event_name == 'push'
