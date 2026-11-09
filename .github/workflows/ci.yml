@@ -126,16 +126,3 @@ jobs:
         run: |
           cd frontend
           pnpm build
-
-  build-images:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: [ci-backend, ci-frontend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build backend image
-        run: docker build -f backend/Dockerfile -t piemdm-backend:latest .
-
-      - name: Build frontend image
-        run: docker build -f frontend/Dockerfile -t piemdm-frontend:latest .
