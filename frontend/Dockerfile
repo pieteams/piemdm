@@ -58,6 +58,8 @@ COPY --from=builder /app/frontend/dist /usr/share/nginx/html
 # Copy nginx configuration as a template so API_UPSTREAM can be set per deployment.
 # The nginx entrypoint runs envsubst on templates and writes conf.d/default.conf.
 ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM
+# Default matches the compose service name; override it for any other deployment.
+ENV API_UPSTREAM=http://backend:8787
 COPY frontend/nginx.conf /etc/nginx/templates/default.conf.template
 
 # Create nginx user and set permissions
