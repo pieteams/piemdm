@@ -4,7 +4,7 @@ import { Configuration } from './generated';
  * API 配置
  */
 export const apiConfig = new Configuration({
-  basePath: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787',
+  basePath: import.meta.env.VITE_API_BASE_URL ?? '',
   baseOptions: {
     headers: {
       'Content-Type': 'application/json',
