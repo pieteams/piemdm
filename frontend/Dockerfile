@@ -1,5 +1,5 @@
 # Multi-stage build for Vue.js application
-FROM node:20-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app

@@ -1,5 +1,5 @@
 # Multi-stage build for Go application
-FROM golang:1.24.12-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24.12-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
