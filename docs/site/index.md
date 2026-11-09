@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "PIE MDM"
+  name: "PieMDM"
   text: "Enterprise-grade Master Data Management Platform"
   tagline: High-performance Go Backend + Modern Vue 3 Frontend
   actions:
