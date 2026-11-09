@@ -5,7 +5,6 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile.dev
-    platform: linux/arm64
     container_name: piemdm-backend-dev
     restart: unless-stopped
     environment:
@@ -35,7 +34,6 @@ services:
     build:
       context: ..
       dockerfile: frontend/Dockerfile.dev
-    platform: linux/arm64
     container_name: piemdm-frontend-dev
     restart: unless-stopped
     ports:
@@ -45,7 +43,7 @@ services:
     volumes:
       # Mount source code for HMR
       - ../frontend:/app/frontend
-      - ../packages/workflow-vue:/app/packages/workflow-vue
+      - ../packages/web/workflow-vue:/app/packages/workflow-vue
       # Exclude node_modules (preserve container's)
       - /app/node_modules
       - /app/frontend/node_modules

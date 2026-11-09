@@ -13,9 +13,14 @@ export interface ApiEndpoints {
   validateToken: string;
 }
 
+const env = (import.meta as any).env || {};
+// Single source for the API origin. Empty means same origin, which is what the
+// container image uses: nginx proxies /api/ to the backend.
+const apiBase = String(env.VITE_BASE_API ?? '').replace(/\/+$/, '');
+
 const apiConfig: Record<string, ApiEndpoints> = {
   development: {
-    baseURL: 'http://localhost:8787/api/v1',
+    baseURL: `${apiBase}/api/v1`,
     userLogin: '/auth/login',
     userLogout: '/auth/logout',
     adminLogin: '/admin/auth/login',
@@ -24,7 +29,7 @@ const apiConfig: Record<string, ApiEndpoints> = {
   },
 
   production: {
-    baseURL: 'https://api.example.com/api/v1',
+    baseURL: `${apiBase}/api/v1`,
     userLogin: '/auth/login',
     userLogout: '/auth/logout',
     adminLogin: '/admin/auth/login',

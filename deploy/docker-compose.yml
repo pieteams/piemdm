@@ -45,6 +45,9 @@ services:
       dockerfile: frontend/Dockerfile
     container_name: piemdm-frontend
     restart: unless-stopped
+    environment:
+      # Where nginx forwards /api, /export and /uploads inside the compose network.
+      - API_UPSTREAM=http://backend:8787
     ports:
       - "${WEB_PORT:-80}:80"
     depends_on:
