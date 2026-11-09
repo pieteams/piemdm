@@ -15,7 +15,8 @@ COPY packages/web/api-client/package.json ./packages/web/api-client/
 
 # Install dependencies
 # Note: orval is in devDependencies of frontend/package.json
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# Pin pnpm to the major used by CI; pnpm 12 treats ignored build scripts as an error.
+RUN npm install -g pnpm@10.34.9 && pnpm install --frozen-lockfile
 
 # Generate API Client (using Orval from frontend dependencies)
 # We need to copy swagger spec and orval config first
