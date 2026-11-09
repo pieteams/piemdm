@@ -2,58 +2,59 @@ name: Docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'docs/site/**'
+      - '.github/workflows/docs.yml'
+  # No path filter on pull requests: a path-filtered workflow does not run on
+  # unmatched PRs, so the required check would stay "Expected" forever.
   pull_request:
-    branches: [ main ]
-    # 移除 paths 限制，让 workflow 始终运行，在步骤级别根据路径条件执行
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build-docs:
+  docs-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Check if docs files changed
-        id: docs-changed
-        uses: dorny/paths-filter@v2
+      - uses: pnpm/action-setup@v4
         with:
-          filters: |
-            docs:
-              - 'docs/site/**'
-          list-files: shell
-
-      - name: Skip if only code changed
-        if: steps.docs-changed.outputs.docs != 'true' && github.event_name == 'pull_request'
-        run: |
-          echo "⏭️  Only code files changed, skipping docs build"
-          exit 0
+          version: 10
 
       - uses: actions/setup-node@v4
-        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
         with:
-          node-version: '20.10.0'
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      - uses: pnpm/action-setup@v3
-        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter piemdm-docs run docs:build
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
-          version: 10.14.0
+          path: docs/site/.vitepress/dist
 
-      - name: Install dependencies and build
-        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
-        run: |
-          pnpm install
-          pnpm --filter piemdm-docs run docs:build
-
-      - name: Deploy
-        if: steps.docs-changed.outputs.docs == 'true' || github.event_name == 'push'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/site/.vitepress/dist
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: docs-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
