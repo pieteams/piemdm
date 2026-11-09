@@ -55,8 +55,10 @@ FROM nginx:alpine
 # Copy built assets from builder stage
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration as a template so API_UPSTREAM can be set per deployment.
+# The nginx entrypoint runs envsubst on templates and writes conf.d/default.conf.
+ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM
+COPY frontend/nginx.conf /etc/nginx/templates/default.conf.template
 
 # Create nginx user and set permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
